@@ -27,6 +27,7 @@ class Plotter(object):
     self.DoRatios = make_ratio
     self.Draw_Data = draw_data
     self.sample_list = sample_list
+    self.MHTMETcorrections = settings["MHTMET"]
     print "DoRatio : %s" %self.DoRatios
     # Apply options
     self.splash_screen()
@@ -500,22 +501,21 @@ class Plotter(object):
       """ 
       MHT_MET Sideband corrections are added here
       """ 
-
-      if leg_entry in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] :
-          scalefactor = 1.03*(1.132 - (0.000431469*midht)) # sf 1.03
-          another_plot.Scale(1.0*scalefactor)
-      elif leg_entry == "W + Jets"  : 
-          scalefactor = 0.95*(0.989713 - (0.00034799*midht)) # ISR PU 0.95 sf
-          another_plot.Scale(1.0*scalefactor)
-      elif leg_entry in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]:
-          scalefactor = 1.05*(0.996212 - 0.0003764*(midht)) # ISR PU 1.05 sf
-          another_plot.Scale(1.0*scalefactor)
-      elif leg_entry in ["\gamma + Jets"] :
-          scalefactor = 1.14*(0.996212 - 0.0003764*(midht)) # ISR PU 1.05 sf
-          another_plot.Scale(1.0*scalefactor)
-
-      else : another_plot.Scale(1.0)
-      
+      if self.MHTMETcorrections == "True":
+        
+        if leg_entry in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] :
+            scalefactor = 1.09*(1.17202 - (0.000598786*midht)) #FullDataset sf 1.09
+            another_plot.Scale(1.0*scalefactor)
+        elif leg_entry == "W + Jets"  : 
+            scalefactor = 1.01*(0.976123 - (0.000405802*midht)) # FullDataset 1.01 sf
+            another_plot.Scale(1.0*scalefactor)
+        elif leg_entry in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]:
+            scalefactor = 1.08*(1.18857 - 0.000787131*(midht)) # FullDataset 1.08 sf
+            another_plot.Scale(1.0*scalefactor)
+        elif leg_entry in ["\gamma + Jets"] :
+            scalefactor = 1.28*(1.18857 - 0.000787131*(midht)) # FullDataset 1.28 sf
+            another_plot.Scale(1.0*scalefactor)
+        else : another_plot.Scale(1.0)
 
       passed_plot.Add(another_plot,1)
 
@@ -578,20 +578,21 @@ class Plotter(object):
       htsplit = htbin.split('_')
       try : midht = (float(htsplit[0])+float(htsplit[1]))/2
       except IndexError:  midht = float(htsplit[0])
-     
-      if leg_entry in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] :
-          scalefactor = 1.03*(1.132 - (0.000431469*midht)) # sf 1.03
-          mcplot.Scale(1.0*scalefactor)
-      elif leg_entry == "W + Jets"  : 
-          scalefactor = 0.95*(0.989713 - (0.00034799*midht)) # ISR PU 0.95 sf
-          mcplot.Scale(1.0*scalefactor)
-      elif leg_entry in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]:
-          scalefactor = 1.05*(0.996212 - 0.0003764*(midht)) # ISR PU 1.05 sf
-          mcplot.Scale(1.0*scalefactor)
-      elif leg_entry in ["\gamma + Jets"] :
-          scalefactor = 1.14*(0.996212 - 0.0003764*(midht)) # ISR PU 1.05 sf
-          mcplot.Scale(1.0*scalefactor)
-
+      
+      if self.MHTMETcorrections == "True":
+ 
+        if leg_entry in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] :
+            scalefactor = 1.09*(1.17202 - (0.000598786*midht)) #FullDataset sf 1.09
+            mcplot.Scale(1.0*scalefactor)
+        elif leg_entry == "W + Jets"  : 
+            scalefactor = 1.01*(0.976123 - (0.000405802*midht)) # FullDataset 1.01 sf
+            mcplot.Scale(1.0*scalefactor)
+        elif leg_entry in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]:
+            scalefactor = 1.08*(1.18857 - 0.000787131*(midht)) # FullDataset 1.08 sf
+            mcplot.Scale(1.0*scalefactor)
+        elif leg_entry in ["\gamma + Jets"] :
+            scalefactor = 1.28*(1.18857 - 0.000787131*(midht)) # FullDataset 1.28 sf
+            mcplot.Scale(1.0*scalefactor)
 
       #Used when combining over all HT bins 200_upwards, 375_upwards
       if combine: self.Plot_Combiner(mcplot,self.settings["dirs"][self.dir_num:],histpath,histname,File,leg_entry,add_jet_mult = ("True" if histname.split('_')[-1] == '3' else "False"))
