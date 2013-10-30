@@ -47,35 +47,38 @@ Sample Instructions
 5th argument - Btag type, "Inclusive"(Baseline),"One","Two" etc
 
 '''
+rootpath = "FullDataset_Root_Files_Correct_PU"
+
+#rootpath = "Oct_11_MHTMET"
 
 photon_plots = {
-     "nMuon":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_Data.root","Photon_","Data","Photon","Inclusive"), 
-     "mc9":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_MC.root","Photon_","Photon","Photon","Inclusive"),
+     "nMuon":("./"+rootpath+"/Photon_Data.root","Photon_","Data","Photon","Inclusive"), 
+     "mc9":("./"+rootpath+"/Photon_MC.root","Photon_","Photon","Photon","Inclusive"),
     
     }
 
 photon_one_btag_plots = {
-     "nbMuon":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_Data.root","btag_one_Photon_","Data","Photon","One"), 
-     "mcb7":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_MC.root","btag_one_Photon_","Photon","Photon","One"),
+     "nbMuon":("./"+rootpath+"/Photon_Data.root","btag_one_Photon_","Data","Photon","One"), 
+     "mcb7":("./"+rootpath+"/Photon_MC.root","btag_one_Photon_","Photon","Photon","One"),
         
     }
 
 
 photon_two_btag_plots = {
-     "nbMuon":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_Data.root","btag_two_Photon_","Data","Photon","Two"), 
-     "mcb7":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_MC.root","btag_two_Photon_","Photon","Photon","Two"), 
+     "nbMuon":("./"+rootpath+"/Photon_Data.root","btag_two_Photon_","Data","Photon","Two"), 
+     "mcb7":("./"+rootpath+"/Photon_MC.root","btag_two_Photon_","Photon","Photon","Two"), 
     }
 
 
 photon_zero_btag_plots = {
-     "nbMuon":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_Data.root","btag_zero_Photon_","Data","Photon","Zero"), 
-     "mcb7":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_MC.root","btag_zero_Photon_","Photon","Photon","Zero"),
+     "nbMuon":("./"+rootpath+"/Photon_Data.root","btag_zero_Photon_","Data","Photon","Zero"), 
+     "mcb7":("./"+rootpath+"/Photon_MC.root","btag_zero_Photon_","Photon","Photon","Zero"),
         
     }
 
 photon_morethanzero_btag_plots = {
-     "nbMuon":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_Data.root","btag_morethanzero_Photon_","Data","Photon","Zero"), 
-     "mcb2":("./MASTER_ROOT_FILES/Root_Files_ISR_PU_Applied/Photon_MC.root","btag_morethanzero_Photon_","Photon","Photon","Zero"),
+     "nbMuon":("./"+rootpath+"/Photon_Data.root","btag_morethanzero_Photon_","Data","Photon","Zero"), 
+     "mcb2":("./"+rootpath+"/Photon_MC.root","btag_morethanzero_Photon_","Photon","Photon","Zero"),
     }
 
 
@@ -96,7 +99,7 @@ if __name__=="__main__":
   a = Plotter(settings,photon_plots,jet_multiplicity = "True",make_ratio="True")
   #b = Plotter(settings,photon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio="True")
   #c = Plotter(settings,photon_two_btag_plots,jet_multiplicity = "True",make_ratio="True")
-  d = Plotter(settings,photon_zero_btag_plots,jet_multiplicity = "True",make_ratio="True")
+  #d = Plotter(settings,photon_zero_btag_plots,jet_multiplicity = "True",make_ratio="True")
   #e = Plotter(settings,photon_one_btag_plots,jet_multiplicity = "True",make_ratio="True")
 
   finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])

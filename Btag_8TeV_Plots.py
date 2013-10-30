@@ -444,7 +444,9 @@ class Plotter(object):
         # Draw Error bands
         plot.Draw("SAME2")
       else:
-        if type(plot) == type(TH2D()): plot.Draw("COLZTEXT")
+        if type(plot) == type(TH2D()): 
+           
+           plot.Draw("COLZ")
         else:
           if num == 0: plot.Draw("PE0")
           else: plot.Draw("HISTSAME")
@@ -487,6 +489,18 @@ class Plotter(object):
     Textbox.DrawLatex(0.7,0.85,title )
     Textbox.DrawLatex(0.7,0.79,lumi)
 
+
+  def Sideband_Corrections(self,plot,legend):
+
+      scalefactor = 1.0
+      if legend in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] : scalefactor = 1.23
+      elif legend in ["W + Jets"]: scalefactor = 0.95
+      elif legend in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]: scalefactor = 0.90
+      elif leg_entry in ["\gamma + Jets"] : scalefactor = 1.15
+
+      plot.Scale(scalefactor)
+      return plot
+
   def Plot_Combiner(self,passed_plot,htbins,histpath,histname,File,leg_entry,add_jet_mult = ''):
     
     for bin in htbins:
@@ -495,28 +509,15 @@ class Plotter(object):
       another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]])
       
       htsplit = bin.split('_')
+
       try : midht = (float(htsplit[0])+float(htsplit[1]))/2
       except IndexError:  midht = float(htsplit[0])
      
       """ 
-      MHT_MET Sideband corrections are added here
+      Sideband corrections are added here
       """ 
-      if self.MHTMETcorrections == "True":
+      if self.MHTMETcorrections == "True":  self.Sideband_Corrections(another_plot,leg_entry)
         
-        if leg_entry in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] :
-            scalefactor = 1.09*(1.17202 - (0.000598786*midht)) #FullDataset sf 1.09
-            another_plot.Scale(1.0*scalefactor)
-        elif leg_entry == "W + Jets"  : 
-            scalefactor = 1.01*(0.976123 - (0.000405802*midht)) # FullDataset 1.01 sf
-            another_plot.Scale(1.0*scalefactor)
-        elif leg_entry in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]:
-            scalefactor = 1.08*(1.18857 - 0.000787131*(midht)) # FullDataset 1.08 sf
-            another_plot.Scale(1.0*scalefactor)
-        elif leg_entry in ["\gamma + Jets"] :
-            scalefactor = 1.28*(1.18857 - 0.000787131*(midht)) # FullDataset 1.28 sf
-            another_plot.Scale(1.0*scalefactor)
-        else : another_plot.Scale(1.0)
-
       passed_plot.Add(another_plot,1)
 
   def MC_Draw(self,rootpath,histname,htbin,histpath,combine = ""):
@@ -579,21 +580,8 @@ class Plotter(object):
       try : midht = (float(htsplit[0])+float(htsplit[1]))/2
       except IndexError:  midht = float(htsplit[0])
       
-      if self.MHTMETcorrections == "True":
- 
-        if leg_entry in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] :
-            scalefactor = 1.09*(1.17202 - (0.000598786*midht)) #FullDataset sf 1.09
-            mcplot.Scale(1.0*scalefactor)
-        elif leg_entry == "W + Jets"  : 
-            scalefactor = 1.01*(0.976123 - (0.000405802*midht)) # FullDataset 1.01 sf
-            mcplot.Scale(1.0*scalefactor)
-        elif leg_entry in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]:
-            scalefactor = 1.08*(1.18857 - 0.000787131*(midht)) # FullDataset 1.08 sf
-            mcplot.Scale(1.0*scalefactor)
-        elif leg_entry in ["\gamma + Jets"] :
-            scalefactor = 1.28*(1.18857 - 0.000787131*(midht)) # FullDataset 1.28 sf
-            mcplot.Scale(1.0*scalefactor)
-
+      if self.MHTMETcorrections == "True":  self.Sideband_Corrections(mcplot,leg_entry)
+        
       #Used when combining over all HT bins 200_upwards, 375_upwards
       if combine: self.Plot_Combiner(mcplot,self.settings["dirs"][self.dir_num:],histpath,histname,File,leg_entry,add_jet_mult = ("True" if histname.split('_')[-1] == '3' else "False"))
        
@@ -675,7 +663,7 @@ class Plotter(object):
             plot.Rebin(50)
             self.OverFlow_Bin(plot,0,2500,1600)
 
-        if histogram in ["MHT_all","MHT_2","MHT_3"]:
+        if histogram in ["MHT_all","MHT_2","MHT_3","MHT_FixedThreshold_all","MHT_FixedThreshold_2","MHT_FixedThreshold_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -683,8 +671,18 @@ class Plotter(object):
           if not norebin:
             plot.Rebin(50)
             self.OverFlow_Bin(plot,0,600,500)
-        
-        if histogram in ["MT__all","MT__2","MT__3"]:
+       
+        if histogram in ["MET_all","MET_2","MET_3","MET_Corrected_all","MET_Corrected_2","MET_Corrected_3"]:
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word: 
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events / 25 GeV")
+          if not norebin:
+            plot.Rebin(25)
+            self.OverFlow_Bin(plot,0,2500,500)
+
+
+        if histogram in ["MT_all","MT_2","MT_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -912,7 +910,7 @@ class Plotter(object):
             plot.SetAxisRange(0.55,1.5,"Y")
             plot.SetAxisRange(0.0,3.0,"Z")
 
-        if "MHTovMET_" in histogram or "MHTovMET_Slices_" in histogram:
+        if histogram in ["MHTovMET_all","MHTovMET_2","MHTovMET_3","MHTovMET_Scaled_all","MHTovMET_Scaled_2","MHTovMET_Scaled_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.1)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -921,7 +919,54 @@ class Plotter(object):
             plot.Rebin(25)
             self.OverFlow_Bin(plot,0,10.,5.0)
 
-        if "MHTovMET_vs_" in histogram:
+        if "MHT_vs_MET" in histogram:
+       
+          #if canvas: self.Log_Setter(plot,canvas,0.1)
+
+          if word: 
+            plot.SetTitle("")
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetXaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("MET")
+            plot.GetXaxis().SetTitle("MHT")
+            #plot.GetZaxis().SetRangeUser(0.8,1.2) 
+          if not norebin:
+
+            plot.SetTitle("")
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetXaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("MET")
+            plot.GetXaxis().SetTitle("MHT")
+            plot.RebinY(10)
+            plot.RebinX(10)
+            plot.SetAxisRange(0.,500.,"Y")
+            plot.SetAxisRange(0.,500.,"X")
+
+        if "MET_vs_MHTovMET" in histogram:
+       
+          #if canvas: self.Log_Setter(plot,canvas,0.1)
+          if word: 
+            plot.SetTitle("")
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetXaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("MHT/MET")
+            plot.GetXaxis().SetTitle("MET")
+            #plot.GetZaxis().SetRangeUser(0.8,1.2) 
+          if not norebin:
+
+            plot.SetTitle("")
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetXaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("MHTovMET")
+            plot.GetXaxis().SetTitle("MET")
+            plot.RebinY(1)
+            plot.RebinX(10)
+            plot.SetAxisRange(0.,5.,"Y")
+            plot.SetAxisRange(0.,500.,"X")
+
+
+
+        if "MHTovMET_vs_AlphaT" in histogram:
        
           if canvas: self.Log_Setter(plot,canvas,0.1)
 
