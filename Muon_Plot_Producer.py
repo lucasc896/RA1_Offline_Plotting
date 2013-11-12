@@ -1,16 +1,18 @@
 #!/usr/bin/env python
-from ROOT import *
 import ROOT as r
 import logging,itertools
 import os,fnmatch,sys
 import glob, errno
-from time import strftime
+from time import strftime, time
 from optparse import OptionParser
 import array, ast
 import math as m
 #from plottingUtils import *
 from Btag_8TeV_Plots import *
 import shutil
+
+r.gROOT.SetBatch(r.kTRUE)
+
 """
 Input dirs in file
 Plots you want to make
@@ -22,13 +24,11 @@ Trigger - Trigger efficiencies
 Misc - Is just a collection of options I pass sometimes to implement a bunch of hacks, because sometimes people have come up with annoying little studies and this was the quickest way to implement the information without rewriting the code. These include Normalising histograms to just compare shapes of distributions etc
 """
 
+baseTime = time()
+
 settings = {
   "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  #"dirs":["150_200"],
-
-  #"Plots":["MHTovMET_all","MHTovMET_Scaled_all","MET_all","MET_Corrected_all","MHT_all","MHT_FixedThreshold_all","JetMultiplicity_all","HT_all", "JetPt_all","JetEta_all"],
-  #"Plots":["MHTovMET_all","MHTovMET_Scaled_all","MET_all","MET_Corrected_all","MHT_all","MHT_FixedThreshold_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT_all","Number_Good_verticies_all"],
-  "Plots":["MHTovMET_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","Number_Good_verticies_all","MT_all"],
+  "Plots":["MHTovMET_all","MHT_all","AlphaT_all","JetPt_all","HT_all","Number_Btags_all","JetMultiplicity_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT__all","Number_Good_verticies_all"],
   "Lumo" : 192.55,
   "Webpage":"btag",
   "Category":"OneMuon",
@@ -38,7 +38,6 @@ settings = {
   "Trigger":{"150":0.88,"200":0.88,"275":0.88,"325":0.88,"375":0.88,"475":0.88,"575":0.88,"675":0.88,"775":0.88,"875":0.88,"975":0.88,"1075":0.88}
   }
 
-#rootpath = "Oct_21_Root_Files"
 rootpath = "FullDataset_Root_Files_Correct_PU"
 njet_ext = ""
 """
@@ -70,7 +69,6 @@ muon_plots = {
      "mc7":("./"+rootpath+"/Muon_DiBoson.root","OneMuon_","Di-Boson","Muon","Inclusive"),
      #"mc8":("./"+rootpath+"/Muon_QCD.root","OneMuon_","QCD","Muon","Inclusive"), 
      "mc9":("./"+rootpath+"/Muon_SingleTop.root","OneMuon_","Single_Top","Muon","Inclusive"),
-
     }
 
 muon_one_btag_plots = {
@@ -82,8 +80,7 @@ muon_one_btag_plots = {
      "mcb5":("./"+rootpath+"/Muon_DY"+njet_ext+".root","btag_one_OneMuon_","DY","Muon","One"),
      "mcb6":("./"+rootpath+"/Muon_SingleTop.root","btag_one_OneMuon_","Single_Top","Muon","One"),
      "mcb7":("./"+rootpath+"/Muon_DiBoson.root","btag_one_OneMuon_","Di-Boson","Muon","One"),
-    # "mcb8":("./"+rootpath+"/Muon_QCD.root","btag_one_OneMuon_","QCD","Muon","One"),
-        
+    # "mcb8":("./"+rootpath+"/Muon_QCD.root","btag_one_OneMuon_","QCD","Muon","One"), 
     }
 
 
@@ -108,7 +105,6 @@ muon_zero_btag_plots = {
      "mcb6":("./"+rootpath+"/Muon_SingleTop.root","btag_zero_OneMuon_","Single_Top","Muon","Zero"),
      "mcb7":("./"+rootpath+"/Muon_DiBoson.root","btag_zero_OneMuon_","Di-Boson","Muon","Zero"),
      #"mcb8":("./"+rootpath+"/Muon_QCD.root","btag_zero_OneMuon_","QCD","Muon","Zero"),
-        
     }
 
 
@@ -138,7 +134,10 @@ if __name__=="__main__":
   #settings["Plots"] = ["MET_vs_MHTovMET_all","MHT_vs_MET_all"]#,"MHTovMET_all","MHTovMET_Scaled_all","MET_all","MET_Corrected_all","MHT_all","MHT_FixedThreshold_all","JetMultiplicity_all","HT_all", "JetPt_all","JetEta_all"]
   
   finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])
+
   try :shutil.rmtree('./Plots')
   except OSError as exc: pass
-  
-  
+
+  print "\n", "*"*52
+  print "\tTotal Analysis time: ", time()-baseTime
+  print "*"*52
