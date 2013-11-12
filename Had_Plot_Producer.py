@@ -14,7 +14,7 @@ from Btag_8TeV_Plots import *
 
 settings = {
   "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":["MHTovMET_Full_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","Number_verticies_all","Number_Good_verticies_all"],
+  "Plots":["MHTovMET_all", "MET_all", "MHTovMET_Full__all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","Number_verticies_all","Number_Good_verticies_all"],
   "Lumo" : 192.55,
   "Webpage":"btag",
   "Category":"Had",
@@ -36,7 +36,6 @@ muon_plots = {
      #"mc7":("./"+rootpath+"/Had_DiBoson.root","","Di-Boson","","Inclusive"),
      #"mc8":("./"+rootpath+"/Had_QCD.root","","QCD","","Inclusive"), 
      "mc9":("./"+rootpath+"/Had_SingleTop.root","","Single_Top","","Inclusive"),
-
     }
 
 muon_one_btag_plots = {
@@ -47,8 +46,7 @@ muon_one_btag_plots = {
      "mcb5":("./"+rootpath+"/Had_DY"+njet_ext+".root","btag_one_","DY","","One"),
      "mcb6":("./"+rootpath+"/Had_SingleTop.root","btag_one_","Single_Top","","One"),
      "mcb7":("./"+rootpath+"/Had_DiBoson.root","btag_one_","Di-Boson","","One"),
-    # "mcb8":("./"+rootpath+"/Had_QCD.root","btag_one_","QCD","","One"),
-        
+    # "mcb8":("./"+rootpath+"/Had_QCD.root","btag_one_","QCD","","One"),       
     }
 
 
@@ -72,8 +70,7 @@ muon_zero_btag_plots = {
      "mcb5":("./"+rootpath+"/Had_DY"+njet_ext+".root","btag_zero_","DY","","Zero"),
      "mcb6":("./"+rootpath+"/Had_SingleTop.root","btag_zero_","Single_Top","","Zero"),
      "mcb7":("./"+rootpath+"/Had_DiBoson.root","btag_zero_","Di-Boson","","Zero"),
-     #"mcb8":("./"+rootpath+"/Had_QCD.root","btag_zero_","QCD","","Zero"),
-        
+     #"mcb8":("./"+rootpath+"/Had_QCD.root","btag_zero_","QCD","","Zero"),     
     }
 
 
@@ -90,8 +87,8 @@ muon_morethanzero_btag_plots = {
 
 if __name__=="__main__":
   a = Plotter(settings,muon_plots,jet_multiplicity = "True",make_ratio= "True")
-  #b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])
