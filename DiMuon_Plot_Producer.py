@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from ROOT import *
 import ROOT as r
 import logging,itertools
 import os,fnmatch,sys
@@ -13,9 +12,8 @@ import shutil
 
 settings = {
   "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  #"Plots":["MHTovMET_all","MHTovMET_Scaled_all","MET_all","MET_Corrected_all","MHT_all","MHT_FixedThreshold_all","JetMultiplicity_all","HT_all", "JetPt_all","JetEta_all"],
-  #"Plots":["MHTovMET_all","DiMuon_Mass_all", "MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","Number_Good_verticies_all"],
-  "Plots":["MHTovMET_all","DiMuon_Mass_all", "MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","Number_Good_verticies_all"],
+  "Plots":["MHTovMET_all","HT_all","DiMuon_Mass_all", "MHT_all","AlphaT_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","Number_Good_verticies_all"],
+
   "Lumo" : 192.55,
   "Webpage":"btag",
   "Category":"DiMuon",
@@ -49,7 +47,6 @@ muon_plots = {
      "mc7":("./"+rootpath+"/Muon_DiBoson.root","DiMuon_","Di-Boson","Muon","Inclusive"),
      #"mc8":("./"+rootpath+"/Muon_QCD.root","DiMuon_","QCD","Muon","Inclusive"), 
      "mc9":("./"+rootpath+"/Muon_SingleTop.root","DiMuon_","Single_Top","Muon","Inclusive"),
-
     }
 
 muon_one_btag_plots = {
@@ -60,10 +57,10 @@ muon_one_btag_plots = {
      "mcb5":("./"+rootpath+"/Muon_DY"+njet_ext+".root","btag_one_DiMuon_","DY","Muon","One"),
      "mcb6":("./"+rootpath+"/Muon_SingleTop.root","btag_one_DiMuon_","Single_Top","Muon","One"),
      "mcb7":("./"+rootpath+"/Muon_DiBoson.root","btag_one_DiMuon_","Di-Boson","Muon","One"),
-        
     }
 
 muon_two_btag_plots = {
+
      "nbMuon":("./"+rootpath+"/Muon_Data.root","btag_two_DiMuon_","Data","Muon","Two"), 
      "mcb2":("./"+rootpath+"/Muon_WJets"+njet_ext+".root","btag_two_DiMuon_","WJets","Muon","Two"),
      "mcb3":("./"+rootpath+"/Muon_TTbar.root","btag_two_DiMuon_","TTbar","Muon","Two"),
@@ -80,11 +77,11 @@ muon_zero_btag_plots = {
      "mcb4":("./"+rootpath+"/Muon_Zinv.root","btag_zero_DiMuon_","Zinv","Muon","Zero"),
      "mcb5":("./"+rootpath+"/Muon_DY"+njet_ext+".root","btag_zero_DiMuon_","DY","Muon","Zero"),
      "mcb6":("./"+rootpath+"/Muon_SingleTop.root","btag_zero_DiMuon_","Single_Top","Muon","Zero"),
-     "mcb7":("./"+rootpath+"/Muon_DiBoson.root","btag_zero_DiMuon_","Di-Boson","Muon","Zero"),
-        
+     "mcb7":("./"+rootpath+"/Muon_DiBoson.root","btag_zero_DiMuon_","Di-Boson","Muon","Zero"),  
     }
 
 muon_morethanzero_btag_plots = {
+<<<<<<< HEAD
      "nbMuon":("./"+rootpath+"/Muon_Data.root","btag_morethanzero_DiMuon_","Data","Muon","Zero"), 
      "mcb2":("./"+rootpath+"/Muon_WJets"+njet_ext+".root","btag_morethanzero_DiMuon_","WJets","Muon","Zero"),
      "mcb3":("./"+rootpath+"/Muon_TTbar.root","btag_morethanzero_DiMuon_","TTbar","Muon","Zero"),
