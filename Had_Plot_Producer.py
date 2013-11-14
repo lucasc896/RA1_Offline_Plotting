@@ -14,18 +14,19 @@ from Btag_8TeV_Plots import *
 
 settings = {
   "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":["MHTovMET_Full_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","Number_verticies_all","Number_Good_verticies_all"],
+  "Plots":["MHTovMET_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","Number_Good_verticies_all"],
   "Lumo" : 192.55,
   "Webpage":"btag",
   "Category":"Had",
   "WebBinning":["200_275","275_325","325_375","375_upwards","200_upwards"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"175":1.0,"200":0.7,"275":0.85,"325":0.90,"375":0.99,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
+  "Trigger":{"150":1.0,"200":0.80,"200_Low":0.816,"200_High":0.665,"275":0.90,"275_Low":0.90,"275_High":0.666,"325":0.99,"375":0.99,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
   }
       
-rootpath = "Oct_11_MHTMET"
-njet_ext = "_NJet"
+rootpath = "NewProcedure_Root_Files"
+#rootpath = "FullDataset_Root_Files_Correct_PU"
+njet_ext = ""
 
 muon_plots = {
      "nMuon":("./"+rootpath+"/Had_Data.root","","Data","","Inclusive"), 
@@ -33,7 +34,7 @@ muon_plots = {
      "mc3":("./"+rootpath+"/Had_TTbar.root","","TTbar","","Inclusive"),
      "mc4":("./"+rootpath+"/Had_Zinv.root","","Zinv","","Inclusive"),
      "mc5":("./"+rootpath+"/Had_DY"+njet_ext+".root","","DY","","Inclusive"),
-     #"mc7":("./"+rootpath+"/Had_DiBoson.root","","Di-Boson","","Inclusive"),
+     "mc7":("./"+rootpath+"/Had_DiBoson.root","","Di-Boson","","Inclusive"),
      #"mc8":("./"+rootpath+"/Had_QCD.root","","QCD","","Inclusive"), 
      "mc9":("./"+rootpath+"/Had_SingleTop.root","","Single_Top","","Inclusive"),
 

@@ -31,6 +31,7 @@ class Plotter(object):
     print "DoRatio : %s" %self.DoRatios
     # Apply options
     self.splash_screen()
+    self.jetcatdict = { "2":"Low","3":"High"}
 
     """
     Hist getting simply loops through your specified data file and then appends to a list the path to the histogram you specified in your settings
@@ -204,7 +205,7 @@ class Plotter(object):
         for bin in self.settings["dirs"][self.dir_num:]:
           add_plot = self.DataFile.Get(("%s%s/%s" %(histpath,bin,histname) if histpath !="" else "%s%s/%s" %(histpath,bin,histname) ))
           plot.Add(add_plot,1)
-      
+      plot.Scale(0.01) 
       if self.DoRatios == "True": self.MakePad(plot)
       self.currenthtbin = htbin.split('_')
       if combine == "True": self.currenthtbin[1] = "upwards"
@@ -493,10 +494,12 @@ class Plotter(object):
   def Sideband_Corrections(self,plot,legend):
 
       scalefactor = 1.0
-      if legend in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] : scalefactor = 1.23
-      elif legend in ["W + Jets"]: scalefactor = 0.95
-      elif legend in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]: scalefactor = 0.90
-      elif leg_entry in ["\gamma + Jets"] : scalefactor = 1.15
+      if legend in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] : scalefactor = 1.21
+      elif legend in ["W + Jets"]: scalefactor = 0.88
+      elif legend in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]: scalefactor = 0.94
+      elif leg_entry in ["\gamma + Jets"] : scalefactor = 1.13
+
+      #if legend in [ "Z\\rightarrow \\nu\\bar{\\nu}"] : plot.Scale(1.2)
 
       plot.Scale(scalefactor)
       return plot
@@ -505,9 +508,11 @@ class Plotter(object):
     
     for bin in htbins:
       
-      another_plot = File.Get(("%s%s/%s" %(histpath,bin,histname) if histpath !="" else "%s%s/%s" %(histpath,bin,histname) ) )    
-      another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]])
-      
+      another_plot = File.Get(("%s%s/%s" %(histpath,bin,histname) if histpath !="" else "%s%s/%s" %(histpath,bin,histname) ) ) 
+    
+      if bin.split('_')[0] in ["200","275"] and self.jetcategory in ["2","3"]:another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
+      else: another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]])
+
       htsplit = bin.split('_')
 
       try : midht = (float(htsplit[0])+float(htsplit[1]))/2
@@ -571,7 +576,12 @@ class Plotter(object):
   def Add_MCplot(self,mcplot,rootpath,histname,htbin,color,leg_entry,File,histpath,combine = "",style=""):
        
       mcplot  = File.Get("%s" %rootpath)
-      mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]])
+      self.jetcategory = histname.split('_')[-1]
+      
+      print htbin.split('_')[0]
+
+      if htbin.split('_')[0] in ["200","275"] and self.jetcategory in ["2","3"]:mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
+      else: mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]])
 
       """
       MHT/MET sideband plots added here. Comment out to ignore
@@ -1029,13 +1039,13 @@ class Plotter(object):
           if not norebin:
             pass
   
-        if histogram in ["JetPt_all","JetPt_2","JetPt_3"]:
+        if histogram in ["LeadJetPt_","SecondJetPt_","CommonJetPt_"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
             plot.Rebin(10)
             self.OverFlow_Bin(plot,0.,1500.,500.)
 
-        if histogram in ["JetEta_all","JetEta_2","JetEta_3"]:
+        if histogram in ["LeadJetEta_","SecondJetEta_","CommonJetEta_"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
             plot.Rebin(5)

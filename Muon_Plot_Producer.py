@@ -35,7 +35,7 @@ settings = {
   "WebBinning":["150_200","200_upwards","375_upwards"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"150":0.88,"200":0.88,"275":0.88,"325":0.88,"375":0.88,"475":0.88,"575":0.88,"675":0.88,"775":0.88,"875":0.88,"975":0.88,"1075":0.88}
+  "Trigger":{"150":0.88,"200_Low":0.88,"275_Low":0.88,"200_High":0.88,"275_High":0.88, "325":0.88,"375":0.88,"475":0.88,"575":0.88,"675":0.88,"775":0.88,"875":0.88,"975":0.88,"1075":0.88}
   }
 
 #rootpath = "Oct_21_Root_Files"
@@ -125,7 +125,7 @@ muon_morethanzero_btag_plots = {
 
 
 if __name__=="__main__":
-  a = Plotter(settings,muon_plots,jet_multiplicity = "True",make_ratio= "True")
+  a = Plotter(settings,muon_plots,jet_multiplicity = "False",make_ratio= "True")
   #b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   #c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   #d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
