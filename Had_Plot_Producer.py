@@ -37,7 +37,6 @@ muon_plots = {
      "mc7":("./"+rootpath+"/Had_DiBoson.root","","Di-Boson","","Inclusive"),
      #"mc8":("./"+rootpath+"/Had_QCD.root","","QCD","","Inclusive"), 
      "mc9":("./"+rootpath+"/Had_SingleTop.root","","Single_Top","","Inclusive"),
-
     }
 
 muon_one_btag_plots = {
@@ -48,8 +47,7 @@ muon_one_btag_plots = {
      "mcb5":("./"+rootpath+"/Had_DY"+njet_ext+".root","btag_one_","DY","","One"),
      "mcb6":("./"+rootpath+"/Had_SingleTop.root","btag_one_","Single_Top","","One"),
      "mcb7":("./"+rootpath+"/Had_DiBoson.root","btag_one_","Di-Boson","","One"),
-    # "mcb8":("./"+rootpath+"/Had_QCD.root","btag_one_","QCD","","One"),
-        
+    # "mcb8":("./"+rootpath+"/Had_QCD.root","btag_one_","QCD","","One"),       
     }
 
 
@@ -73,8 +71,7 @@ muon_zero_btag_plots = {
      "mcb5":("./"+rootpath+"/Had_DY"+njet_ext+".root","btag_zero_","DY","","Zero"),
      "mcb6":("./"+rootpath+"/Had_SingleTop.root","btag_zero_","Single_Top","","Zero"),
      "mcb7":("./"+rootpath+"/Had_DiBoson.root","btag_zero_","Di-Boson","","Zero"),
-     #"mcb8":("./"+rootpath+"/Had_QCD.root","btag_zero_","QCD","","Zero"),
-        
+     #"mcb8":("./"+rootpath+"/Had_QCD.root","btag_zero_","QCD","","Zero"),     
     }
 
 
@@ -91,8 +88,8 @@ muon_morethanzero_btag_plots = {
 
 if __name__=="__main__":
   a = Plotter(settings,muon_plots,jet_multiplicity = "True",make_ratio= "True")
-  #b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])

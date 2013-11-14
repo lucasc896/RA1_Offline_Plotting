@@ -1,18 +1,21 @@
 #!/usr/bin/env python
-from ROOT import *
 import ROOT as r
 import logging,itertools
 import os,fnmatch,sys
 import glob, errno
-from time import strftime
+from time import strftime, time
 from optparse import OptionParser
 import array
 import math as m
 from array import array
+
+r.gROOT.SetBatch(r.kTRUE)
+
 class Plotter(object):
 
   def __init__(self,settings,sample_list,jet_multiplicity = "",make_ratio = "False",draw_data = "True"):
     #================================== Preamble
+    self.baseTime = time()
     print " Selecting tdr style"
     r.gROOT.ProcessLine(".L tdrstyle.C")
     r.setstyle()
@@ -40,8 +43,7 @@ class Plotter(object):
     We later loop through this ilst in Plotting_Option and produce all the relevant histograms 
     """
     self.Hist_Getter(settings,sample_list)
-    self.Plotting_Option(settings,sample_list)
-    
+    self.Plotting_Option(settings,sample_list)    
 
   def splash_screen(self):
     print "\n|============================================================================|"
@@ -55,30 +57,30 @@ class Plotter(object):
         except OSError as exc: pass
 
   def Hist_Getter(self,settings,sample_list):
-       for key,sample in sorted(sample_list.iteritems()):
-          if "n" == key[0]:
-             self.DATA_FILE = sample[0]
-             self.Directory_Name = sample[1]
-             temp =  r.TFile.Open(self.DATA_FILE)
-             DirKeys = temp.GetListOfKeys()
-             self.Path_List =[]
-             self.Hist_List = []
-             for key in DirKeys:
-               subdirect = temp.FindObjectAny(key.GetName())
-               for bin in settings["dirs"]:
-                dir = sample[1]+bin
-                if dir ==  subdirect.GetName():
-                  for subkey in subdirect.GetListOfKeys() :
-                    if subkey.GetName() in settings["Plots"]:
-                      if self.jet_multi == "True":
-                       base = subkey.GetName().strip('all')
-                       for entry in ['all','2','3']:
-                        self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
-                        self.Hist_List.append(base+entry)
-                      else: 
-                        self.Path_List.append("%s/%s" % (subdirect.GetName(),subkey.GetName()))
-                        self.Hist_List.append(subkey.GetName())
-             temp.Close()
+    for key,sample in sorted(sample_list.iteritems()):
+      if "n" == key[0]:
+        self.DATA_FILE = sample[0]
+        self.Directory_Name = sample[1]
+        temp =  r.TFile.Open(self.DATA_FILE)
+        DirKeys = temp.GetListOfKeys()
+        self.Path_List =[]
+        self.Hist_List = []
+        for key in DirKeys:
+          subdirect = temp.FindObjectAny(key.GetName())
+          for bin in settings["dirs"]:
+            dir = sample[1]+bin
+            if dir ==  subdirect.GetName():
+              for subkey in subdirect.GetListOfKeys() :
+                if subkey.GetName() in settings["Plots"]:
+                  if self.jet_multi == "True":
+                    base = subkey.GetName().strip('all')
+                    for entry in ['all','2','3']:
+                      self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
+                      self.Hist_List.append(base+entry)
+                  else: 
+                    self.Path_List.append("%s/%s" % (subdirect.GetName(),subkey.GetName()))
+                    self.Hist_List.append(subkey.GetName())
+        temp.Close()
   
   def Directory_Maker(self):
     htBins = self.settings["dirs"]
@@ -114,7 +116,7 @@ class Plotter(object):
         os.chdir(self.base)
  
   def MakePad(self,plot):
-      if type(plot) != type(TH2D()):
+      if type(plot) != type(r.TH2D()):
         # Make 2 pads for the Data/MC ratio plot fit.
           self.up = r.TPad("u","u",0.01,0.25,0.99,0.99)
           self.dp = r.TPad("d","d",0.01,0.01,0.99,0.25)
@@ -128,7 +130,7 @@ class Plotter(object):
   """
   
   def MakeMCRatio(self,histname,data,mc):
-        if type(data) != type(TH2D()):
+        if type(data) != type(r.TH2D()):
           self.c1.cd(2)
           self.ratio = data.Clone()
           #self.ratio.Add(mc,-1)
@@ -144,7 +146,7 @@ class Plotter(object):
           for i in range(0,self.ratio.GetNbinsX()):
               try:self.ratio.SetBinError(i+1,self.ratio.GetBinContent(i+1)*(data.GetBinError(i+1)/data.GetBinContent(i+1)))
               except ZeroDivisionError: self.ratio.SetBinError(i+1,0)
-          self.ratio = self.Hist_Options(histname,self.ratio,norebin=true)
+          self.ratio = self.Hist_Options(histname,self.ratio,norebin=True)
           if self.max_min[1] != 0: 
             self.lv = r.TLine(self.max_min[0],1,self.max_min[1],1)
             fit = r.TF1("fit","pol0", self.max_min[0], self.max_min[1])
@@ -156,8 +158,8 @@ class Plotter(object):
             error_changer.SetBinContent(i,1)
             try: error_changer.SetBinError(i+1,mc.GetBinError(i+1)/mc.GetBinContent(i+1))
             except ZeroDivisionError: error_changer.SetBinError(i+1,0)
-          gStyle.SetOptFit(1)
-          self.ratio_error = TGraphErrors(error_changer)
+          r.gStyle.SetOptFit(1)
+          self.ratio_error = r.TGraphErrors(error_changer)
           self.ratio.Fit(fit)
           self.ratio_error.SetFillStyle(3244)
           self.ratio_error.SetFillColor(17)
@@ -241,7 +243,7 @@ class Plotter(object):
       self.MC_Draw(rootpath,histname,htbin, histpath = histpath,combine = combine)
       self.stackleg = self.leg.Clone()
 
-      if type(plot) != type(TH2D()) and "Profile" not in self.settings["Misc"]:
+      if type(plot) != type(r.TH2D()) and "Profile" not in self.settings["Misc"]:
         # This draws the total MC band for Total MC, EWK MC only, EWK+QCD used in data/MC ratio
         self.Draw_Total_MC(self.total_mc_maker)
         self.Draw_Total_MC(self.ewk_mc_maker, NoDraw = "EWK")
@@ -249,22 +251,22 @@ class Plotter(object):
 
       self.yaxis_maximiser(plot)
       self.Drawer(self.max_maker)
-      if type(plot) != type(TH2D()) and "Profile" not in self.settings["Misc"]:
+      if type(plot) != type(r.TH2D()) and "Profile" not in self.settings["Misc"]:
         self.Drawer(self.draw_error,error="True")
         self.leg.Draw("SAME")
       
       self.TextBox(plot,(rootpath.split("/")[0] if not combine else (rootpath.split("/")[0]).rstrip("475")),histname)
       if "NoLegend" not in self.settings["Misc"]: self.TagBox()
-      if type(plot) != type(TH2D()): 
+      if type(plot) != type(r.TH2D()): 
           # Redraw data to make it easier to see
           plot.Draw("PSAME")
-      if self.DoRatios == "True" and type(plot) != type(TH2D()): self.MakeMCRatio(histname,plot,self.total_background)
+      if self.DoRatios == "True" and type(plot) != type(r.TH2D()): self.MakeMCRatio(histname,plot,self.total_background)
 
       # Save files in png,pdf and .C formats
       for ext in ['png','pdf','C']: self.c1.SaveAs("%s/%s/%s_%s%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"_reversed" if "Reversed" in self.settings["Misc"] else "_profile" if "Profile" in self.settings["Misc"] else "",ext)) 
       
       # Make Stacked plots and also Simplified plots here
-      if type(plot) != type(TH2D()) and "Profile" not in self.settings["Misc"]:
+      if type(plot) != type(r.TH2D()) and "Profile" not in self.settings["Misc"]:
         self.Stack_Draw(plot,self.total_mc_maker,htbin,histname,rootpath,combine = combine)
         if "Normalise" in self.settings["Misc"]: self.Normalise_Plots(plot,self.ewk_mc_maker,self.qcd_only,htbin,histname,rootpath,combine = combine)
         else: self.Simple_Draw(plot,self.ewk_background,self.qcd_only,self.total_background,htbin,histname,rootpath,combine = combine)
@@ -273,7 +275,7 @@ class Plotter(object):
 
   def Floor_Data(self,plot):
 
-      if type(plot) == type(TH2D()):
+      if type(plot) == type(r.TH2D()):
          for xbin in range(0, plot.GetNbinsX()+1):
             for ybin in range(0, plot.GetNbinsY()+1):
                 plot.SetBinContent(xbin,ybin,0)
@@ -339,7 +341,7 @@ class Plotter(object):
 
   def Stack_Draw(self,data,mc_array,htbin,histname,rootpath,combine=""):
     self.c1.cd(1)
-    mc_stack = THStack()
+    mc_stack = r.THStack()
     self.Stack_Sorter(mc_array)
     for plot in mc_array:
       plot.SetFillColor(plot.GetLineColor())
@@ -372,7 +374,7 @@ class Plotter(object):
     self.c1.cd(1)
     self.Legend_Maker()
     self.leg.AddEntry(data,"Data","P")
-    mc_stacker = THStack()
+    mc_stacker = r.THStack()
     if self.simple_draw_zinv: self.leg.AddEntry(self.simple_draw_zinv,"Z Jets","L")
     if self.simple_draw_sms: self.leg.AddEntry(self.simple_draw_sms,"SMS","L")
     self.leg.AddEntry(mc_combined,"EWK","L")
@@ -381,7 +383,7 @@ class Plotter(object):
     data.Draw()
     mc_combined.SetMarkerColor(4)
     mc_combined.SetMarkerStyle(20)
-    mc_stacker = THStack()
+    mc_stacker = r.THStack()
     #mc_stacker.Add(mc_combined)
     if qcd_only: 
       qcd_only[0].SetFillColor(0)
@@ -406,7 +408,8 @@ class Plotter(object):
     self.TagBox()
     data.Draw("PSAME")
     if self.DoRatios == "True": self.MakeMCRatio(histname,data,total_mc)
-    for ext in ['png','pdf','C']: self.c1.SaveAs("%s/%s/Simplified_%s_%s%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"reversed" if "Reversed" in self.settings["Misc"] else "", ext))
+    for ext in ['png']: # ['png','pdf','C']:
+      self.c1.SaveAs("%s/%s/Simplified_%s_%s%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"reversed" if "Reversed" in self.settings["Misc"] else "", ext))
     
   
   def Draw_Total_MC(self,mc_list,NoDraw = ""):
@@ -429,7 +432,7 @@ class Plotter(object):
       for num,hist in enumerate(mc_list):
         if num == 0:self.totmcplot = hist.Clone()
         else: self.totmcplot.Add(hist)
-      errorbarplot = TGraphErrors(self.totmcplot)
+      errorbarplot = r.TGraphErrors(self.totmcplot)
       errorbarplot.SetFillColor(3)
       errorbarplot.SetFillStyle(3008)
       self.draw_error.append(errorbarplot)
@@ -445,9 +448,8 @@ class Plotter(object):
         # Draw Error bands
         plot.Draw("SAME2")
       else:
-        if type(plot) == type(TH2D()): 
-           
-           plot.Draw("COLZ")
+        if type(plot) == type(r.TH2D()): 
+          plot.Draw("COLZ")
         else:
           if num == 0: plot.Draw("PE0")
           else: plot.Draw("HISTSAME")
@@ -465,7 +467,7 @@ class Plotter(object):
   #Ensured that y-axis is set to accomodate the yields in MC and display everything on canvas 
   def yaxis_maximiser(self,plot):
       highest = 0
-      if type(plot) != type(TH2D()):
+      if type(plot) != type(r.TH2D()):
         for max in self.max_maker:
           temp = max.GetMaximum()
           if temp > highest: highest = temp
@@ -474,14 +476,14 @@ class Plotter(object):
         self.max_maker[0].GetYaxis().SetRangeUser(self.iflog,self.ymax)
 
   def TextBox(self,plot,htbin,histname):
-    Textbox = TLatex()
+    Textbox = r.TLatex()
     Textbox.SetNDC()
     Textbox.SetTextAlign(12)
     Textbox.SetTextSize(0.04)
     Textbox.DrawLatex(0.1,0.95, htbin+'    Jet Multiplicity'+('>' if histname.split('_')[-1] == '3' else '=') +('2,3' if histname.split('_')[-1] == '2' else histname.split('_')[-1]))
 
   def TagBox(self):
-    Textbox = TLatex()
+    Textbox = r.TLatex()
     title = "CMS 2012, 8TeV"
     lumi= "\int L dt = %s fb^{-1}" % (self.settings['Lumo']/10)
     Textbox.SetNDC()
@@ -521,8 +523,9 @@ class Plotter(object):
       """ 
       Sideband corrections are added here
       """ 
+
       if self.MHTMETcorrections == "True":  self.Sideband_Corrections(another_plot,leg_entry)
-        
+
       passed_plot.Add(another_plot,1)
 
   def MC_Draw(self,rootpath,histname,htbin,histpath,combine = ""):
@@ -589,12 +592,11 @@ class Plotter(object):
       htsplit = htbin.split('_')
       try : midht = (float(htsplit[0])+float(htsplit[1]))/2
       except IndexError:  midht = float(htsplit[0])
-      
+
       if self.MHTMETcorrections == "True":  self.Sideband_Corrections(mcplot,leg_entry)
         
       #Used when combining over all HT bins 200_upwards, 375_upwards
       if combine: self.Plot_Combiner(mcplot,self.settings["dirs"][self.dir_num:],histpath,histname,File,leg_entry,add_jet_mult = ("True" if histname.split('_')[-1] == '3' else "False"))
-       
 
       mcplot.GetSumw2()
       mcplot.Scale(float(self.settings["Lumo"]))
@@ -608,26 +610,26 @@ class Plotter(object):
 
       if leg_entry =="Z\\rightarrow \\nu\\bar{\\nu}":
         self.simple_draw_zinv = mcplot.Clone()
-        errorbarplot = TGraphErrors(mcplot)
+        errorbarplot = r.TGraphErrors(mcplot)
         errorbarplot.SetFillColor(int(color))
         errorbarplot.SetFillStyle(3008)
         self.draw_error_simple.append(errorbarplot)
 
       if leg_entry =="SMS":
         self.simple_draw_sms = mcplot.Clone()
-        errorbarplot = TGraphErrors(mcplot)
+        errorbarplot = r.TGraphErrors(mcplot)
         errorbarplot.SetFillColor(int(color))
         errorbarplot.SetFillStyle(3008)
         self.draw_error_simple.append(errorbarplot)
 
       if leg_entry =="t\\bar{t}":
         self.simple_draw_ttbar = mcplot.Clone()
-        errorbarplot = TGraphErrors(mcplot)
+        errorbarplot = r.TGraphErrors(mcplot)
         errorbarplot.SetFillColor(int(color))
         errorbarplot.SetFillStyle(3008)
 
       if leg_entry == "QCD": 
-        errorbarplot = TGraphErrors(mcplot)
+        errorbarplot = r.TGraphErrors(mcplot)
         errorbarplot.SetFillColor(int(color))
         errorbarplot.SetFillStyle(3008)
         self.qcd_only.append(mcplot)
@@ -690,7 +692,6 @@ class Plotter(object):
           if not norebin:
             plot.Rebin(25)
             self.OverFlow_Bin(plot,0,2500,500)
-
 
         if histogram in ["MT_all","MT_2","MT_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
@@ -1147,7 +1148,7 @@ class Plotter(object):
   def Log_Setter(self,plot,canvas,min):
       self.iflog = min
       plot.SetMinimum(float(min))
-      if type(plot) == type(TH2D()):
+      if type(plot) == type(r.TH2D()):
         #canvas.SetLogz(1)
         canvas.SetLogy(1)
 
@@ -1174,12 +1175,12 @@ class Plotter(object):
         for y in range(0,hist.GetNbinsY()): 
             set_overflowx = float(hist.Integral(hist.GetXaxis().FindBin(overflow),hist.GetNbinsX(),y+1,y+1))
             hist.SetBinContent(hist.GetXaxis().FindBin(overflow),y+1,set_overflowx)
-            hist.SetBinContent(hist.GetXaxis().FindBin(overflow),y+1,sqrt(set_overflowx))
+            hist.SetBinContent(hist.GetXaxis().FindBin(overflow),y+1,m.sqrt(set_overflowx))
 
         for x in range(0,hist.GetNbinsX()): 
             set_overflowy = float(hist.Integral(x+1,x+1,hist.GetYaxis().FindBin(overflow_y),hist.GetNbinsY()))
             hist.SetBinContent(x+1,hist.GetYaxis().FindBin(overflow),set_overflowy)
-            hist.SetBinError(x+1,hist.GetYaxis().FindBin(overflow),sqrt(set_overflowy))
+            hist.SetBinError(x+1,hist.GetYaxis().FindBin(overflow),m.sqrt(set_overflowy))
 
         hist.SetAxisRange(xmin,overflow,"X")
         hist.SetAxisRange(ymin,overflow_y,"Y")
@@ -1189,7 +1190,7 @@ class Plotter(object):
         set_overflow = float(hist.Integral(overflow_bin,hist.GetNbinsX()))
 
         hist.SetBinContent(overflow_bin,set_overflow)
-        hist.SetBinError(overflow_bin,sqrt(set_overflow))
+        hist.SetBinError(overflow_bin,m.sqrt(set_overflow))
         hist.SetAxisRange(xmin,overflow,"X")
         additional_bin = (0.1)
         self.max_min = [xmin,overflow+additional_bin]
@@ -1203,7 +1204,7 @@ class Plotter(object):
           integral_keeper.append(self.histclone.Integral(self.histclone.GetNbinsX()-i,self.histclone.GetNbinsX()))
       for k in range(self.histclone.GetNbinsX()):
         hist.SetBinContent(self.histclone.GetNbinsX()-k,integral_keeper[k])  
-        hist.SetBinError(self.histclone.GetNbinsX()-k,sqrt(integral_keeper[k]))
+        hist.SetBinError(self.histclone.GetNbinsX()-k,m.sqrt(integral_keeper[k]))
       self.histclone_keeper.append(self.histclone) 
 
 class Webpage_Maker(object):
@@ -1251,16 +1252,16 @@ class Webpage_Maker(object):
         print "       ======== Making Webpage ========"
         print "       ********************************\n\n"
         self.webdir = self.title+"_plots_"+strftime("%d_%b_%H")
-        self.ensure_dir("/home/hep/db1110/public_html/Website_Plots/"+self.webdir)
+        self.ensure_dir("/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/"+self.webdir)
         for root,dirs,files in os.walk('./Plots'):
           for filename in fnmatch.filter(files,'*'):
               name = os.path.join(root,filename)
-              os.system('cp ' +name+ ' ~/public_html/Website_Plots/'+self.webdir+'/')
+              os.system('cp ' +name+ ' /Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/')
         
         if option == "Normal":
           for i in plotnames:
               counter = 0
-              htF = open('home/hep/db1110/public_html/Website_Plots/'+self.webdir+'/'+i+'.html','w')
+              htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/'+i+'.html','w')
               htF.write('Author: Darren Burton <br> \n')
               htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
               htF.write('<center>\n <p> \n <font size="5"> Binned Muon Control Sample </font>\n </p>\n') 
@@ -1307,9 +1308,9 @@ class Webpage_Maker(object):
         for i in outer:
           for j in inner:
             counter = 0
-            if simplified:htF = open('/home/hep/db1110/public_html/Website_Plots/'+self.webdir+'/Simplified_'+j+'_'+i+'.html','w')
-            elif stacked: htF = open('/home/hep/db1110/public_html/Website_Plots/'+self.webdir+'/Stacked_'+j+'_'+i+'.html','w')
-            else: htF = open('/home/hep/db1110/public_html/Website_Plots/'+self.webdir+'/'+j+'_'+i+'.html','w')
+            if simplified:htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/Simplified_'+j+'_'+i+'.html','w')
+            elif stacked: htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/Stacked_'+j+'_'+i+'.html','w')
+            else: htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/'+j+'_'+i+'.html','w')
             htF.write('Author: Darren Burton <br> \n')
             htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
             htF.write('<center>\n <p> \n <font size="5"> '+self.title+' Plots </font>\n </p>\n') 
@@ -1365,7 +1366,7 @@ class Webpage_Maker(object):
               for num,entry in enumerate(self.btag_names): 
                 self.btag_names[entry] = self.btag_names[entry].rstrip('_')
                 if num == 0: self.btag_names[entry] = ""
-            for root,dirs,files in os.walk('/home/hep/db1110/public_html/Website_Plots/'+self.webdir):
+            for root,dirs,files in os.walk('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir):
               sorter = []
               test_sorter = []
               if not slice:

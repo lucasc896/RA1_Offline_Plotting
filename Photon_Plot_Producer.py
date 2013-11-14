@@ -36,6 +36,7 @@ settings = {
   "Trigger":{"200":1.0,"275":1.0,"325":1.0,"375":1.0,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
       }
 
+rootDirectory = "../rootfiles/Root_Files_29Oct_Full2013_Parked_originalDiMu_SITVwJetVeto"
 
 '''
 Sample Instructions
@@ -54,13 +55,11 @@ rootpath = "FullDataset_Root_Files_Correct_PU"
 photon_plots = {
      "nMuon":("./"+rootpath+"/Photon_Data.root","Photon_","Data","Photon","Inclusive"), 
      "mc9":("./"+rootpath+"/Photon_MC.root","Photon_","Photon","Photon","Inclusive"),
-    
     }
 
 photon_one_btag_plots = {
      "nbMuon":("./"+rootpath+"/Photon_Data.root","btag_one_Photon_","Data","Photon","One"), 
-     "mcb7":("./"+rootpath+"/Photon_MC.root","btag_one_Photon_","Photon","Photon","One"),
-        
+     "mcb7":("./"+rootpath+"/Photon_MC.root","btag_one_Photon_","Photon","Photon","One"),     
     }
 
 
@@ -72,8 +71,7 @@ photon_two_btag_plots = {
 
 photon_zero_btag_plots = {
      "nbMuon":("./"+rootpath+"/Photon_Data.root","btag_zero_Photon_","Data","Photon","Zero"), 
-     "mcb7":("./"+rootpath+"/Photon_MC.root","btag_zero_Photon_","Photon","Photon","Zero"),
-        
+     "mcb7":("./"+rootpath+"/Photon_MC.root","btag_zero_Photon_","Photon","Photon","Zero"), 
     }
 
 photon_morethanzero_btag_plots = {
