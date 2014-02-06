@@ -3,40 +3,43 @@ import ROOT as r
 import logging,itertools
 import os,fnmatch,sys
 import glob, errno
-from time import strftime
+from time import strftime, sleep
 from optparse import OptionParser
 import array, ast
 import math as m
 from Btag_8TeV_Plots import *
-import shutil 
+import shutil
+from run_details import this_run
 
 settings = {
   "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":["MHTovMET_all","HT_all","DiMuon_Mass_all", "MHT_all","AlphaT_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","Number_Good_verticies_all"],
-
-  "Lumo" : 192.55,
+  "Plots":["MHTovMET_all","HT_all","DiMuon_Mass_all", "MHT_all","AlphaT_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","Number_Good_verticies_all"][:-3],
+  "Lumo" : this_run()["mu_lumi"]*10.,
   "Webpage":"btag",
   "Category":"DiMuon",
-  "WebBinning":["150_200","200_upwards","375_upwards"],
+  "WebBinning":["150_200","200_275","275_325","325_375","200_upwards","375_upwards"],
   "Misc":[],
   "MHTMET":"True",
   "Trigger":{"150":0.95,"200":0.95,"275":0.96,"325":0.96,"375":0.96,"475":0.96,"575":0.97,"675":0.97,"775":0.98,"875":0.98,"975":0.98,"1075":0.98}
   }
-rootpath = "Oct_21_Root_Files"
-#rootpath = "FullDataset_Root_Files_Correct_PU"
+
+print ">> Opening directory:", this_run()["path_name"]
+sleep(3)
+
+rootpath = "../" + this_run()["path_name"]
 njet_ext = ""
 """
 rootpath = "NewConfig_RootFiles"
 njet_ext = "_NJet"
 """
-dimuon_2d = {
-     "nMuon":("./"+rootpath+"/Muon_EWK"+njet_ext+".root","DiMuon_","Data","Muon","Inclusive"), 
-     "mc2":("./"+rootpath+"/Muon_EWK"+njet_ext+".root","DiMuon_","SMS","Muon","Inclusive"),
-    }
+# dimuon_2d = {
+#      "nMuon":("./"+rootpath+"/Muon_EWK"+njet_ext+".root","DiMuon_","Data","Muon","Inclusive"), 
+#      "mc2":("./"+rootpath+"/Muon_EWK"+njet_ext+".root","DiMuon_","SMS","Muon","Inclusive"),
+#     }
 
-dimuon_2d_data = {
-     "nMuon":("./"+rootpath+"/Muon_Data.root","DiMuon_","Data","Muon","Inclusive"), 
-    }
+# dimuon_2d_data = {
+#      "nMuon":("./"+rootpath+"/Muon_Data.root","DiMuon_","Data","Muon","Inclusive"), 
+#     }
 
 muon_plots = {
      "nMuon":("./"+rootpath+"/Muon_Data.root","DiMuon_","Data","Muon","Inclusive"), 
@@ -45,7 +48,7 @@ muon_plots = {
      "mc4":("./"+rootpath+"/Muon_Zinv.root","DiMuon_","Zinv","Muon","Inclusive"),
      "mc5":("./"+rootpath+"/Muon_DY"+njet_ext+".root","DiMuon_","DY","Muon","Inclusive"),
      "mc7":("./"+rootpath+"/Muon_DiBoson.root","DiMuon_","Di-Boson","Muon","Inclusive"),
-     #"mc8":("./"+rootpath+"/Muon_QCD.root","DiMuon_","QCD","Muon","Inclusive"), 
+     # "mc8":("./"+rootpath+"/Muon_QCD.root","DiMuon_","QCD","Muon","Inclusive"), 
      "mc9":("./"+rootpath+"/Muon_SingleTop.root","DiMuon_","Single_Top","Muon","Inclusive"),
     }
 
@@ -81,7 +84,6 @@ muon_zero_btag_plots = {
     }
 
 muon_morethanzero_btag_plots = {
-<<<<<<< HEAD
      "nbMuon":("./"+rootpath+"/Muon_Data.root","btag_morethanzero_DiMuon_","Data","Muon","Zero"), 
      "mcb2":("./"+rootpath+"/Muon_WJets"+njet_ext+".root","btag_morethanzero_DiMuon_","WJets","Muon","Zero"),
      "mcb3":("./"+rootpath+"/Muon_TTbar.root","btag_morethanzero_DiMuon_","TTbar","Muon","Zero"),
@@ -93,10 +95,10 @@ muon_morethanzero_btag_plots = {
 
 if __name__=="__main__":
   a = Plotter(settings,muon_plots,jet_multiplicity = "True",make_ratio= "True")
-  #b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   """
   settings["Misc"] = ["NoLegend"]
   settings["Lumo"] = 1.0
