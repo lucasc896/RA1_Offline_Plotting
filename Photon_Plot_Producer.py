@@ -10,7 +10,7 @@ import array, ast
 import math as m
 #from plottingUtils import *
 from Btag_8TeV_Plots import *
-
+from run_details import this_run
 
 '''
 Setting Intrustions
@@ -27,7 +27,7 @@ WebBinning - Bins that you want to show information for on website.
 settings = {
   "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
   "Plots":[ "PhotonPt_all", "AlphaT_all","HT_all","PhotonPFIso_all","PhotonNeutralIso_all","PhotonChargedIso_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","Number_verticies_all","Number_Good_verticies_all" ] ,
-  "Lumo" : 203.40,
+  "Lumo" : this_run()["ph_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Photon",
   "WebBinning":["375_upwards"],
@@ -36,7 +36,7 @@ settings = {
   "Trigger":{"200":1.0,"275":1.0,"325":1.0,"375":1.0,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
       }
 
-rootDirectory = "../rootfiles/Root_Files_29Oct_Full2013_Parked_originalDiMu_SITVwJetVeto"
+rootDirectory = "../" + this_run()["path_name"]
 
 '''
 Sample Instructions
@@ -48,7 +48,7 @@ Sample Instructions
 5th argument - Btag type, "Inclusive"(Baseline),"One","Two" etc
 
 '''
-rootpath = "FullDataset_Root_Files_Correct_PU"
+rootpath = rootDirectory
 
 #rootpath = "Oct_11_MHTMET"
 
@@ -95,9 +95,9 @@ jet_multiplicity - produces all different jet multiplicity categories. Otherwise
 
 if __name__=="__main__":
   a = Plotter(settings,photon_plots,jet_multiplicity = "True",make_ratio="True")
-  #b = Plotter(settings,photon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio="True")
-  #c = Plotter(settings,photon_two_btag_plots,jet_multiplicity = "True",make_ratio="True")
-  #d = Plotter(settings,photon_zero_btag_plots,jet_multiplicity = "True",make_ratio="True")
-  #e = Plotter(settings,photon_one_btag_plots,jet_multiplicity = "True",make_ratio="True")
+  b = Plotter(settings,photon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio="True")
+  c = Plotter(settings,photon_two_btag_plots,jet_multiplicity = "True",make_ratio="True")
+  d = Plotter(settings,photon_zero_btag_plots,jet_multiplicity = "True",make_ratio="True")
+  e = Plotter(settings,photon_one_btag_plots,jet_multiplicity = "True",make_ratio="True")
 
   finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])

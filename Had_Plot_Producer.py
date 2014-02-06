@@ -4,28 +4,33 @@ import ROOT as r
 import logging,itertools
 import os,fnmatch,sys
 import glob, errno
-from time import strftime
+from time import strftime, sleep
 from optparse import OptionParser
 import array, ast
 import math as m
 #from plottingUtils import *
 from Btag_8TeV_Plots import *
+from run_details import this_run
 
 
 settings = {
   "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
   "Plots":["MHTovMET_all", "MET_all", "MHTovMET_Full__all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","Number_verticies_all","Number_Good_verticies_all"],
-  "Lumo" : 192.55,
+  "Lumo" : this_run()["had_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Had",
   "WebBinning":["200_275","275_325","325_375","375_upwards","200_upwards"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"175":1.0,"200":0.7,"275":0.85,"325":0.90,"375":0.99,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
+  "Trigger":{"175":1.0,"200":0.74,"275":0.85,"325":0.90,"375":0.99,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
   }
-      
-rootpath = "Oct_11_MHTMET"
-njet_ext = "_NJet"
+
+print "\n>> Opening directory:", this_run()["path_name"]
+sleep(2)
+
+rootpath = "../" + this_run()["path_name"]
+# njet_ext = "_NJet"
+njet_ext = ""
 
 muon_plots = {
      "nMuon":("./"+rootpath+"/Had_Data.root","","Data","","Inclusive"), 

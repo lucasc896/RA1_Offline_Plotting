@@ -3,13 +3,14 @@ import ROOT as r
 import logging,itertools
 import os,fnmatch,sys
 import glob, errno
-from time import strftime, time
+from time import strftime, time, sleep
 from optparse import OptionParser
 import array, ast
 import math as m
 #from plottingUtils import *
 from Btag_8TeV_Plots import *
 import shutil
+from run_details import this_run
 
 r.gROOT.SetBatch(r.kTRUE)
 
@@ -21,24 +22,31 @@ Webbinning - Plots you want displayed on website
 Trigger - Trigger efficiencies
 
 
-Misc - Is just a collection of options I pass sometimes to implement a bunch of hacks, because sometimes people have come up with annoying little studies and this was the quickest way to implement the information without rewriting the code. These include Normalising histograms to just compare shapes of distributions etc
+Misc - Is just a collection of options I pass sometimes to implement a bunch of hacks, because sometimes people have
+come up with annoying little studies and this was the quickest way to implement the information without rewriting the
+code. These include Normalising histograms to just compare shapes of distributions etc
 """
 
 baseTime = time()
 
 settings = {
   "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":["MHTovMET_all","MHT_all","AlphaT_all","JetPt_all","HT_all","Number_Btags_all","JetMultiplicity_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT__all","Number_Good_verticies_all"],
-  "Lumo" : 192.55,
+  "Plots":["MHTovMET_all","MHT_all","AlphaT_all","JetPt_all","HT_all","Number_Btags_all","JetMultiplicity_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT_all","Number_Good_verticies_all"],
+  # "Plots":["AlphaT_all", "MuPt_all"],
+  "Lumo" : this_run()["mu_lumi"]*10.,
   "Webpage":"btag",
   "Category":"OneMuon",
-  "WebBinning":["150_200","200_upwards","375_upwards"],
+  "WebBinning":["150_200","200_275","275_325","325_375","200_upwards","375_upwards"],
+  # "WebBinning":["200_275","275_325","325_375","375_475", "475_575"],
   "Misc":[],
   "MHTMET":"True",
   "Trigger":{"150":0.88,"200":0.88,"275":0.88,"325":0.88,"375":0.88,"475":0.88,"575":0.88,"675":0.88,"775":0.88,"875":0.88,"975":0.88,"1075":0.88}
   }
 
-rootpath = "FullDataset_Root_Files_Correct_PU"
+print ">> Opening directory:", this_run()["path_name"]
+sleep(3)
+
+rootpath = "../" + this_run()["path_name"]
 njet_ext = ""
 """
 rootpath = "NewConfig_RootFiles"
@@ -122,10 +130,10 @@ muon_morethanzero_btag_plots = {
 
 if __name__=="__main__":
   a = Plotter(settings,muon_plots,jet_multiplicity = "True",make_ratio= "True")
-  #b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  #e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   
   #settings["Misc"] = ["NoLegend"]
   #settings["Lumo"] = 1.0
