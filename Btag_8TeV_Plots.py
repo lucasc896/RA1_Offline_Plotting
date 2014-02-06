@@ -8,6 +8,8 @@ from optparse import OptionParser
 import array
 import math as m
 from array import array
+from run_details import this_run
+from sys import exit
 
 r.gROOT.SetBatch(r.kTRUE)
 
@@ -36,10 +38,12 @@ class Plotter(object):
     self.splash_screen()
 
     """
-    Hist getting simply loops through your specified data file and then appends to a list the path to the histogram you specified in your settings
+    Hist getting simply loops through your specified data file and then appends to a list the path
+    to the histogram you specified in your settings
 
     e.g It will append to Path_List,  OneMuon_375_475/Number_Btags_all
-    We later loop through this ilst in Plotting_Option and produce all the relevant histograms 
+    
+    We later loop through this list in Plotting_Option and produce all the relevant histograms 
     """
     self.Hist_Getter(settings,sample_list)
     self.Plotting_Option(settings,sample_list)    
@@ -52,8 +56,10 @@ class Plotter(object):
     print "|============================================================================|"
 
   def ensure_dir(self,dir):
-        try: os.makedirs(dir)
-        except OSError as exc: pass
+    try:
+      os.makedirs(dir)
+    except OSError as exc:
+      pass
 
   def Hist_Getter(self,settings,sample_list):
     for key,sample in sorted(sample_list.iteritems()):
@@ -108,7 +114,9 @@ class Plotter(object):
           ht = (histpath.split('/')[0])[len(self.Directory_Name):]
           if ht in settings["WebBinning"] : self.Make_Plots(ht,name,histpath)
 
-          #These two plots here are when we want to make combined HT bins plots 375,200 upwards. the split is to strip the 375_475 from the hist name. I seem to have some problems if I used the .strip method hence why it looks a bit wierd with the -7 there.
+          # These two plots here are when we want to make combined HT bins plots 375,200 upwards. the split is to strip the
+          # 375_475 from the hist name. I seem to have some problems if I used the .strip method hence why it looks a bit
+          # weird with the -7 there.
           if ht in ["375_475"]: self.Make_Plots(ht,name,histpath,combine = "True",histpath= (histpath.split('/')[0][:-7]))
           if ht in ["200_275"]: self.Make_Plots(ht,name,histpath,combine = "True",histpath= (histpath.split('/')[0][:-7]))
 
@@ -494,11 +502,12 @@ class Plotter(object):
 
   def Sideband_Corrections(self,plot,legend):
 
-      scalefactor = 1.0
-      if legend in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] : scalefactor = 1.23
-      elif legend in ["W + Jets"]: scalefactor = 0.95
-      elif legend in ["Z\\rightarrow \\nu\\bar{\\nu}","DY + Jets"]: scalefactor = 0.90
-      elif leg_entry in ["\gamma + Jets"] : scalefactor = 1.15
+      if legend in ["Single Top","t\\bar{t}","WW/ZZ/WZ"] : scalefactor = this_run()["tt_corr"]
+      elif legend in ["W + Jets"]: scalefactor = this_run()["wj_corr"]
+      elif legend in ["Z\\rightarrow \\nu\\bar{\\nu}"]: scalefactor = this_run()["dy_corr"]
+      elif legend in ["DY + Jets"]: scalefactor = this_run()["dy_corr"]
+      elif legend in ["\gamma + Jets"] : scalefactor = this_run()["dy_corr"]
+      else: scalefactor = 1.
 
       plot.Scale(scalefactor)
       return plot
