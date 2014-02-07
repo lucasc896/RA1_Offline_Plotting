@@ -20,7 +20,7 @@ settings = {
   "WebBinning":["150_200","200_275","275_325","325_375","200_upwards","375_upwards"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"150":0.95,"200":0.95,"275":0.96,"325":0.96,"375":0.96,"475":0.96,"575":0.97,"675":0.97,"775":0.98,"875":0.98,"975":0.98,"1075":0.98}
+  "Trigger":{"150":0.95,"200_Low":0.95,"275_Low":0.96,"200_High":0.95,"275_High":0.96,"325":0.96,"375":0.96,"475":0.96,"575":0.97,"675":0.97,"775":0.98,"875":0.98,"975":0.98,"1075":0.98}
   }
 
 print ">> Opening directory:", this_run()["path_name"]
@@ -36,7 +36,6 @@ njet_ext = "_NJet"
 #      "nMuon":("./"+rootpath+"/Muon_EWK"+njet_ext+".root","DiMuon_","Data","Muon","Inclusive"), 
 #      "mc2":("./"+rootpath+"/Muon_EWK"+njet_ext+".root","DiMuon_","SMS","Muon","Inclusive"),
 #     }
-
 # dimuon_2d_data = {
 #      "nMuon":("./"+rootpath+"/Muon_Data.root","DiMuon_","Data","Muon","Inclusive"), 
 #     }

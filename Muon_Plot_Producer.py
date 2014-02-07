@@ -40,7 +40,7 @@ settings = {
   # "WebBinning":["200_275","275_325","325_375","375_475", "475_575"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"150":0.88,"200":0.88,"275":0.88,"325":0.88,"375":0.88,"475":0.88,"575":0.88,"675":0.88,"775":0.88,"875":0.88,"975":0.88,"1075":0.88}
+  "Trigger":{"150":0.88,"200_Low":0.88,"275_Low":0.88,"200_High":0.88,"275_High":0.88, "325":0.88,"375":0.88,"475":0.88,"575":0.88,"675":0.88,"775":0.88,"875":0.88,"975":0.88,"1075":0.88}
   }
 
 print ">> Opening directory:", this_run()["path_name"]
@@ -48,10 +48,7 @@ sleep(3)
 
 rootpath = "../" + this_run()["path_name"]
 njet_ext = ""
-"""
-rootpath = "NewConfig_RootFiles"
-njet_ext = "_NJet"
-"""
+
 muon_2d = {
      "nMuon":("./"+rootpath+"/Muon_EWK"+njet_ext+".root","OneMuon_","Data","Muon","Inclusive"), 
      "mc2":("./"+rootpath+"/Muon_EWK"+njet_ext+".root","OneMuon_","SMS","Muon","Inclusive"),

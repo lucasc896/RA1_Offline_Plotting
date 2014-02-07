@@ -22,7 +22,7 @@ settings = {
   "WebBinning":["200_275","275_325","325_375","375_upwards","200_upwards"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"175":1.0,"200":0.74,"275":0.85,"325":0.90,"375":0.99,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
+  "Trigger":{"150":1.0,"200":0.80,"200_Low":0.816,"200_High":0.74,"275":0.90,"275_Low":0.90,"275_High":0.666,"325":0.99,"375":0.99,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
   }
 
 print "\n>> Opening directory:", this_run()["path_name"]
@@ -38,7 +38,7 @@ muon_plots = {
      "mc3":("./"+rootpath+"/Had_TTbar.root","","TTbar","","Inclusive"),
      "mc4":("./"+rootpath+"/Had_Zinv.root","","Zinv","","Inclusive"),
      "mc5":("./"+rootpath+"/Had_DY"+njet_ext+".root","","DY","","Inclusive"),
-     #"mc7":("./"+rootpath+"/Had_DiBoson.root","","Di-Boson","","Inclusive"),
+     "mc7":("./"+rootpath+"/Had_DiBoson.root","","Di-Boson","","Inclusive"),
      #"mc8":("./"+rootpath+"/Had_QCD.root","","QCD","","Inclusive"), 
      "mc9":("./"+rootpath+"/Had_SingleTop.root","","Single_Top","","Inclusive"),
     }
