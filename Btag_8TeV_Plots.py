@@ -36,7 +36,7 @@ class Plotter(object):
     print "DoRatio : %s" %self.DoRatios
     # Apply options
     self.splash_screen()
-    self.jetcatdict = { "2":"Low","3":"High"}
+    self.jetcatdict = { "1":"LLow","2":"Low","3":"High","4":"HHigh"} # do this better...
 
     """
     Hist getting simply loops through your specified data file and then appends to a list the path
@@ -80,7 +80,7 @@ class Plotter(object):
                 if subkey.GetName() in settings["Plots"]:
                   if self.jet_multi == "True":
                     base = subkey.GetName().strip('all')
-                    for entry in ['all','2','3']:
+                    for entry in ['all','1','2','3','4']:
                       self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
                       self.Hist_List.append(base+entry)
                   else: 
@@ -484,11 +484,24 @@ class Plotter(object):
         self.max_maker[0].GetYaxis().SetRangeUser(self.iflog,self.ymax)
 
   def TextBox(self,plot,htbin,histname):
+
+    hist_multi = histname.split('_')[-1]
+    multi_txt = ""
+    if hist_multi == '4':
+      multi_txt += '>'
+      multi_txt += str(hist_multi)
+    else:
+      multi_txt += '='
+      if hist_multi == 'all':
+        multi_txt += 'all'
+      else:
+        multi_txt += str(int(hist_multi)+1)
+
     Textbox = r.TLatex()
     Textbox.SetNDC()
     Textbox.SetTextAlign(12)
     Textbox.SetTextSize(0.04)
-    Textbox.DrawLatex(0.1,0.95, htbin+'    Jet Multiplicity'+('>' if histname.split('_')[-1] == '3' else '=') +('2,3' if histname.split('_')[-1] == '2' else histname.split('_')[-1]))
+    Textbox.DrawLatex(0.1,0.95, htbin+'    Jet Multiplicity' + multi_txt)
 
   def TagBox(self):
     Textbox = r.TLatex()
@@ -519,8 +532,10 @@ class Plotter(object):
       
       another_plot = File.Get(("%s%s/%s" %(histpath,bin,histname) if histpath !="" else "%s%s/%s" %(histpath,bin,histname) ) ) 
     
-      if bin.split('_')[0] in ["200","275"] and self.jetcategory in ["2","3"]:another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
-      else: another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]])
+      if bin.split('_')[0] in ["200","275"] and self.jetcategory in ["1","2","3","4"]:
+        another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
+      else:
+        another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]])
 
       htsplit = bin.split('_')
 
@@ -605,7 +620,8 @@ class Plotter(object):
       if self.MHTMETcorrections == "True":  self.Sideband_Corrections(mcplot,leg_entry)
         
       #Used when combining over all HT bins 200_upwards, 375_upwards
-      if combine: self.Plot_Combiner(mcplot,self.settings["dirs"][self.dir_num:],histpath,histname,File,leg_entry,add_jet_mult = ("True" if histname.split('_')[-1] == '3' else "False"))
+      if combine:
+        self.Plot_Combiner(mcplot,self.settings["dirs"][self.dir_num:],histpath,histname,File,leg_entry,add_jet_mult = ("True" if histname.split('_')[-1] == '3' else "False"))
 
       mcplot.GetSumw2()
       mcplot.Scale(float(self.settings["Lumo"]))
@@ -767,7 +783,7 @@ class Plotter(object):
             if "Reversed" in self.settings["Misc"]: self.Reversed_Integrator(plot)
 
 
-        if histogram in ["HT_all","HT_2","HT_3"]:
+        if histogram in ["HT_all","HT_2","HT_3","HT_1","HT_4"]: # note: this should eventually be done for all histos
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
