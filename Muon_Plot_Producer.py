@@ -29,6 +29,19 @@ code. These include Normalising histograms to just compare shapes of distributio
 
 baseTime = time()
 
+trigger_effs = {"150":0.88,
+                "200_Low":0.88,"200_High":0.88,
+                "275_Low":0.88,"275_High":0.88,
+                "325":0.88,
+                "375":0.88,
+                "475":0.88,
+                "575":0.88,
+                "675":0.88,
+                "775":0.88,
+                "875":0.88,
+                "975":0.88,
+                "1075":0.88}
+
 settings = {
   "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
   "Plots":["MHTovMET_all","MHT_all","AlphaT_all","JetPt_all","HT_all","Number_Btags_all","JetMultiplicity_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT_all","Number_Good_verticies_all"],
