@@ -11,16 +11,45 @@ from Btag_8TeV_Plots import *
 import shutil
 from run_details import this_run
 
+
+trigger_effs =  { "150_Low":0.970,"150_High":0.972,
+                  "200_Low":0.970,"200_High":0.972,
+                  "275_Low":0.972,"275_High":0.973,
+                  "325_Low":0.973,"325_High":0.973,
+                  "375_Low":0.974,"375_High":0.972,
+                  "475_Low":0.976,"475_High":0.973,
+                  "575_Low":0.977,"575_High":0.974,
+                  "675_Low":0.979,"675_High":0.977,
+                  "775_Low":0.977,"775_High":0.973,
+                  "875_Low":0.978,"875_High":0.978,
+                  "975_Low":0.980,"975_High":0.978,
+                  "1075_Low":0.977,"1075_High":0.979,}
+
+
+# For 30/30 dimu selection
+trigger_effs =  { "150_Low":0.989,"150_High":0.988,
+                  "200_Low":0.989,"200_High":0.988,
+                  "275_Low":0.989,"275_High":0.988,
+                  "325_Low":0.989,"325_High":0.989,
+                  "375_Low":0.989,"375_High":0.989,
+                  "475_Low":0.989,"475_High":0.989,
+                  "575_Low":0.989,"575_High":0.989,
+                  "675_Low":0.990,"675_High":0.989,
+                  "775_Low":0.989,"775_High":0.989,
+                  "875_Low":0.990,"875_High":0.989,
+                  "975_Low":0.990,"975_High":0.991,
+                  "1075_Low":0.990,"1075_High":0.990}
+
 settings = {
   "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":["MHTovMET_all","HT_all","DiMuon_Mass_all", "MHT_all","AlphaT_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","Number_Good_verticies_all"][:-3],
+  "Plots":["MHTovMET_all","HT_all","DiMuon_Mass_all", "MHT_all","AlphaT_all","JetMultiplicity_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","MuPt_all","MuEta_all","SecondMuPt_all","SecondMuEta_all","MuPFIso_all","Number_Good_verticies_all"],
   "Lumo" : this_run()["mu_lumi"]*10.,
   "Webpage":"btag",
   "Category":"DiMuon",
   "WebBinning":["150_200","200_275","275_325","325_375","200_upwards","375_upwards"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"150":0.95,"200_Low":0.95,"275_Low":0.96,"200_High":0.95,"275_High":0.96,"325":0.96,"375":0.96,"475":0.96,"575":0.97,"675":0.97,"775":0.98,"875":0.98,"975":0.98,"1075":0.98}
+  "Trigger":trigger_effs
   }
 
 print ">> Opening directory:", this_run()["path_name"]
