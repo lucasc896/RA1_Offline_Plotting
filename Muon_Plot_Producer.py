@@ -29,9 +29,22 @@ code. These include Normalising histograms to just compare shapes of distributio
 
 baseTime = time()
 
+trigger_effs = {"150_Low":0.891,"150_High":0.898,
+                "200_Low":0.891,"200_High":0.898,
+                "275_Low":0.893,"275_High":0.898,
+                "325_Low":0.895,"325_High":0.900,
+                "375_Low":0.897,"375_High":0.903,
+                "475_Low":0.898,"475_High":0.905,
+                "575_Low":0.900,"575_High":0.906,
+                "675_Low":0.901,"675_High":0.907,
+                "775_Low":0.902,"775_High":0.908,
+                "875_Low":0.904,"875_High":0.906,
+                "975_Low":0.903,"975_High":0.906,
+                "1075_Low":0.900,"1075_High":0.912,}
+
 settings = {
   "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":["MHTovMET_all","MHT_all","AlphaT_all","JetPt_all","HT_all","Number_Btags_all","JetMultiplicity_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT_all","Number_Good_verticies_all"],
+  "Plots":["MHTovMET_all","MHT_all","AlphaT_all","CommonJetPt_all","HT_all","Number_Btags_all","JetMultiplicity_all","CommonJetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT_all","Number_Good_verticies_all"],
   # "Plots":["AlphaT_all", "MuPt_all"],
   "Lumo" : this_run()["mu_lumi"]*10.,
   "Webpage":"btag",
@@ -40,7 +53,7 @@ settings = {
   # "WebBinning":["200_275","275_325","325_375","375_475", "475_575"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"150":0.88,"200_Low":0.88,"275_Low":0.88,"200_High":0.88,"275_High":0.88, "325":0.88,"375":0.88,"475":0.88,"575":0.88,"675":0.88,"775":0.88,"875":0.88,"975":0.88,"1075":0.88}
+  "Trigger":trigger_effs
   }
 
 print ">> Opening directory:", this_run()["path_name"]
