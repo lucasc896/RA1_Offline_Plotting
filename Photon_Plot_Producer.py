@@ -24,16 +24,28 @@ Category - "Photon_","OneMuon","DiMuon" Used in string search when producing web
 WebBinning - Bins that you want to show information for on website.
 '''
 
+trigger_effs = {"200_Low":1.0,"200_High":1.0,
+                "275_Low":1.0,"275_High":1.0,
+                "325_Low":1.0,"325_High":1.0,
+                "375_Low":1.0,"375_High":1.0,
+                "475_Low":1.0,"475_High":1.0,
+                "575_Low":1.0,"575_High":1.0,
+                "675_Low":1.0,"675_High":1.0,
+                "775_Low":1.0,"775_High":1.0,
+                "875_Low":1.0,"875_High":1.0,
+                "975_Low":1.0,"975_High":1.0,
+                "1075_Low":1.0,"1075_High":1.0}
+
 settings = {
   "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":[ "PhotonPt_all", "AlphaT_all","HT_all","PhotonPFIso_all","PhotonNeutralIso_all","PhotonChargedIso_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","Number_verticies_all","Number_Good_verticies_all" ] ,
+  "Plots":[ "PhotonPt_all", "AlphaT_all","HT_all","PhotonPFIso_all","PhotonNeutralIso_all","PhotonChargedIso_all","JetMultiplicity_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","Number_verticies_all","Number_Good_verticies_all" ] ,
   "Lumo" : this_run()["ph_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Photon",
   "WebBinning":["375_upwards"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"200":1.0,"275":1.0,"325":1.0,"375":1.0,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
+  "Trigger":trigger_effs
       }
 
 rootDirectory = "../" + this_run()["path_name"]
