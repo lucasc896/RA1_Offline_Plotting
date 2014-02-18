@@ -519,8 +519,10 @@ class Plotter(object):
       
       another_plot = File.Get(("%s%s/%s" %(histpath,bin,histname) if histpath !="" else "%s%s/%s" %(histpath,bin,histname) ) ) 
     
-      if bin.split('_')[0] in ["200","275"] and self.jetcategory in ["2","3"]:another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
-      else: another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]])
+      if self.jetcategory in ["2","3"]:
+        another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
+      else:
+        another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_Low"])
 
       htsplit = bin.split('_')
 
@@ -587,13 +589,12 @@ class Plotter(object):
        
       mcplot  = File.Get("%s" %rootpath)
       self.jetcategory = histname.split('_')[-1]
-      
-      # print htbin.split('_')[0]
 
-      if htbin.split('_')[0] in ["200","275"] and self.jetcategory in ["2","3"]:
+      
+      if self.jetcategory in ["2","3"]:
         mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
       else:
-        mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]])
+        mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0] + "_Low"])
 
       """
       MHT/MET sideband plots added here. Comment out to ignore
@@ -753,8 +754,9 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 25 GeV")
           if not norebin:
-            plot.Rebin(20)
+            plot.Rebin(10)
           self.OverFlow_Bin(plot,10,2010,1000)
+          plot.GetXaxis().SetRangeUser(0., 1000.)
 
         if "PartonHT" in histogram :
           if canvas: self.Log_Setter(plot,canvas,0.5)
@@ -1216,9 +1218,9 @@ class Plotter(object):
         hist.SetBinError(self.histclone.GetNbinsX()-k,m.sqrt(integral_keeper[k]))
       self.histclone_keeper.append(self.histclone) 
 
+
+
 class Webpage_Maker(object):
-
-
 
       """
       This is where the webpage is made. This is all automated however you wil need to change
@@ -1271,7 +1273,7 @@ class Webpage_Maker(object):
           for i in plotnames:
               counter = 0
               htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/'+i+'.html','w')
-              htF.write('Author: Darren Burton <br> \n')
+              htF.write('Authors: Darren Burton and Chris Lucas <br> \n')
               htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
               htF.write('<center>\n <p> \n <font size="5"> Binned Muon Control Sample </font>\n </p>\n') 
               htF.write('<font size="3">Results for :  '+i+' </font><br> \n')
@@ -1298,7 +1300,8 @@ class Webpage_Maker(object):
             self.btag_names = {"Inclusive":self.category,"OS_Di":"_DiMuon"+self.category }
 
           else: 
-            self.btag_slices = {'Zero':"0-btag",'One':"1-btag",'Two':"2-btag",'Three':"3-btag","Inclusive":"Inclusive",'More_Than_Zero':"A btag",'More_Than_Two':"More Than Two",'More_Than_Three':"More Than Three"}
+            # self.btag_slices = {'Zero':"0-btag",'One':"1-btag",'Two':"2-btag",'Three':"3-btag","Inclusive":"Inclusive",'More_Than_Zero':"A btag",'More_Than_Two':"More Than Two",'More_Than_Three':"More Than Three"}
+            self.btag_slices = {'Zero':"0-btag",'Two':"2-btag","Inclusive":"Inclusive",'More_Than_One':"More Than One"} # reduced number of btag cats
             self.btag_names = {'More_Than_Three':"_btag_morethanthree_"+self.category,'More_Than_Two':"_btag_morethantwo_"+self.category,'More_Than_Zero':"_btag_morethanzero_"+self.category,'Zero':"_btag_zero_"+self.category,'One':"_btag_one_"+self.category,'Three':"_btag_three_"+self.category,'Two':"_btag_two_"+self.category,"Inclusive":'_'+self.category }
 
           self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ")
