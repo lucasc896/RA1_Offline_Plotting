@@ -80,9 +80,15 @@ class Plotter(object):
                 if subkey.GetName() in settings["Plots"]:
                   if self.jet_multi == "True":
                     base = subkey.GetName().strip('all')
-                    for entry in ['all','2','3']:
-                      self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
-                      self.Hist_List.append(base+entry)
+                    if "pfCands" not in base:
+                      for entry in ['all','2','3']:
+                        self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
+                        self.Hist_List.append(base+entry)
+                    else:
+                      base = base.strip('0')
+                      for entry in ['0','2','3']:
+                        self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
+                        self.Hist_List.append(base+entry)                      
                   else: 
                     self.Path_List.append("%s/%s" % (subdirect.GetName(),subkey.GetName()))
                     self.Hist_List.append(subkey.GetName())
@@ -1054,13 +1060,13 @@ class Plotter(object):
         if histogram in ["LeadJetPt_","SecondJetPt_","CommonJetPt_"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
-            plot.Rebin(10)
+            plot.Rebin(20)
             self.OverFlow_Bin(plot,0.,1500.,500.)
 
         if histogram in ["LeadJetEta_","SecondJetEta_","CommonJetEta_"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
-            plot.Rebin(5)
+            plot.Rebin(10)
             plot.SetAxisRange(-3.0,3.0,"X")
 
         if histogram in ["MuEta_all","MuEta_2","MuEta_3"]:
@@ -1153,6 +1159,15 @@ class Plotter(object):
           if not norebin:
             plot.Rebin(5)
           self.OverFlow_Bin(plot,0,1500,150)
+
+        if "pfCands" in histogram:
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word:
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events")
+          if not norebin:
+            if "Charge" not in histogram:
+              plot.Rebin(5)
 
         return plot
 
@@ -1273,7 +1288,8 @@ class Webpage_Maker(object):
           for i in plotnames:
               counter = 0
               htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/'+i+'.html','w')
-              htF.write('Authors: Darren Burton and Chris Lucas <br> \n')
+              htF.write('Author: Darren Burton<br> \n')
+              htF.write('Analyser: Chris Lucas<br> \n')
               htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
               htF.write('<center>\n <p> \n <font size="5"> Binned Muon Control Sample </font>\n </p>\n') 
               htF.write('<font size="3">Results for :  '+i+' </font><br> \n')
@@ -1302,7 +1318,7 @@ class Webpage_Maker(object):
           else: 
             # self.btag_slices = {'Zero':"0-btag",'One':"1-btag",'Two':"2-btag",'Three':"3-btag","Inclusive":"Inclusive",'More_Than_Zero':"A btag",'More_Than_Two':"More Than Two",'More_Than_Three':"More Than Three"}
             self.btag_slices = {'Zero':"0-btag",'Two':"2-btag","Inclusive":"Inclusive",'More_Than_One':"More Than One"} # reduced number of btag cats
-            self.btag_names = {'More_Than_Three':"_btag_morethanthree_"+self.category,'More_Than_Two':"_btag_morethantwo_"+self.category,'More_Than_Zero':"_btag_morethanzero_"+self.category,'Zero':"_btag_zero_"+self.category,'One':"_btag_one_"+self.category,'Three':"_btag_three_"+self.category,'Two':"_btag_two_"+self.category,"Inclusive":'_'+self.category }
+            self.btag_names = {'More_Than_Three':"_btag_morethanthree_"+self.category,'More_Than_Two':"_btag_morethantwo_"+self.category,'More_Than_Zero':"_btag_morethanzero_"+self.category,'More_Than_One':"_btag_morethanone_"+self.category,'Zero':"_btag_zero_"+self.category,'One':"_btag_one_"+self.category,'Three':"_btag_three_"+self.category,'Two':"_btag_two_"+self.category,"Inclusive":'_'+self.category }
 
           self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ")
           self.Alpha_Webpage(self.btag_slices,plotnames,link=foldername[0],outertitle="Btag Multiplicities:  ",slice="True")
@@ -1324,6 +1340,7 @@ class Webpage_Maker(object):
             elif stacked: htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/Stacked_'+j+'_'+i+'.html','w')
             else: htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/'+j+'_'+i+'.html','w')
             htF.write('Author: Darren Burton <br> \n')
+            htF.write('Analyser: Chris Lucas <br> \n')
             htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
             htF.write('<center>\n <p> \n <font size="5"> '+self.title+' Plots </font>\n </p>\n') 
             htF.write('<font size="3">Results for '+j+'_'+i+' </font><br> \n')
@@ -1332,7 +1349,8 @@ class Webpage_Maker(object):
               counter += 1
               if simplified: htF.write('<a href=\"Simplified_'+k+'_'+i+'.html\">'+k+'</a>   ')
               elif stacked: htF.write('<a href=\"Stacked_'+k+'_'+i+'.html\">'+k+'</a>   ')
-              else: htF.write('<a href=\"'+k+'_'+i+'.html\">'+k+'</a>   ')
+              else: 
+                htF.write('<a href=\"'+k+'_'+i+'.html\">'+k+'</a>   ')
               htF.write('    |     ')
               if counter == 4:
                 htF.write('<br> \n')
