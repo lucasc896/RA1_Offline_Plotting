@@ -53,8 +53,13 @@ settings = {
   # "WebBinning":["200_275","275_325","325_375","375_475", "475_575"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":trigger_effs
+  "Trigger":trigger_effs,
+  "SITV_plots":[False, True][1]
   }
+
+if settings["SITV_plots"]:
+  for p in ['pfCandsPt_0', 'pfCandsDzPV_0', 'pfCandsDunno_0', 'pfCandsCharge_0']:
+    settings["Plots"].append(p) 
 
 print ">> Opening directory:", this_run()["path_name"]
 sleep(3)
