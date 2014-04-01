@@ -34,9 +34,8 @@ class Plotter(object):
     self.sample_list = sample_list
     self.MHTMETcorrections = settings["MHTMET"]
     print "DoRatio : %s" %self.DoRatios
-    # Apply options
     self.splash_screen()
-    self.jetcatdict = { "1":"LLow","2":"Low","3":"High","4":"HHigh"} # do this better...
+    self.jet_cats = settings["jet_categories"]
 
     """
     Hist getting simply loops through your specified data file and then appends to a list the path
@@ -80,7 +79,7 @@ class Plotter(object):
                 if subkey.GetName() in settings["Plots"]:
                   if self.jet_multi == "True":
                     base = subkey.GetName().strip('all')
-                    for entry in ['all','1','2','3','4']:
+                    for entry in self.jet_cats:
                       self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
                       self.Hist_List.append(base+entry)
                   else: 
@@ -487,7 +486,7 @@ class Plotter(object):
 
     hist_multi = histname.split('_')[-1]
     multi_txt = ""
-    if hist_multi == '4':
+    if hist_multi == '3':
       multi_txt += '>'
       multi_txt += str(hist_multi)
     else:
@@ -532,11 +531,9 @@ class Plotter(object):
       
       another_plot = File.Get(("%s%s/%s" %(histpath,bin,histname) if histpath !="" else "%s%s/%s" %(histpath,bin,histname) ) ) 
     
-      if bin.split('_')[0] in ["200","275"] and self.jetcategory in ["1","2","3","4"]:
-        another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
-      else:
-        another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]])
-
+      # apply trigger eff scaling
+      another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_"+self.jetcategory])
+      
       htsplit = bin.split('_')
 
       try : midht = (float(htsplit[0])+float(htsplit[1]))/2
@@ -602,13 +599,9 @@ class Plotter(object):
        
       mcplot  = File.Get("%s" %rootpath)
       self.jetcategory = histname.split('_')[-1]
-      
-      # print htbin.split('_')[0]
 
-      if htbin.split('_')[0] in ["200","275"] and self.jetcategory in ["2","3"]:
-        mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
-      else:
-        mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]])
+      # apply trigger eff scaling      
+      mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]+"_"+self.jetcategory])
 
       """
       MHT/MET sideband plots added here. Comment out to ignore
@@ -677,6 +670,16 @@ class Plotter(object):
       self.leg.SetFillColor(0)
       self.leg.SetLineColor(0)
 
+  def make_plot_name_list(self, hist_names = []):
+    """ returns a list of all combinations of arg and jetcats"""
+
+    out = []
+
+    for i in itertools.product(hist_names, self.jet_cats):
+      out.append( i[0] + "_" + i[1] )
+
+    return out
+
   def Hist_Options(self,histogram,plot,canvas="",word = "",norebin=""):
 
 
@@ -691,7 +694,7 @@ class Plotter(object):
         """ 
         if word: print "Applying %s Options" % histogram
        
-        if histogram in ["EffectiveMass_all","EffectiveMass_2","EffectiveMass_3"]:
+        if histogram in self.make_plot_name_list(["EffectiveMass"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -700,7 +703,7 @@ class Plotter(object):
             plot.Rebin(50)
             self.OverFlow_Bin(plot,0,2500,1600)
 
-        if histogram in ["MHT_all","MHT_2","MHT_3","MHT_FixedThreshold_all","MHT_FixedThreshold_2","MHT_FixedThreshold_3"]:
+        if histogram in self.make_plot_name_list(["MHT", "MHT_FixedThreshold"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -709,7 +712,7 @@ class Plotter(object):
             plot.Rebin(50)
             self.OverFlow_Bin(plot,0,600,500)
        
-        if histogram in ["MET_all","MET_2","MET_3","MET_Corrected_all","MET_Corrected_2","MET_Corrected_3"]:
+        if histogram in self.make_plot_name_list(["MET", "MET_Corrected"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -718,7 +721,7 @@ class Plotter(object):
             plot.Rebin(25)
             self.OverFlow_Bin(plot,0,2500,500)
 
-        if histogram in ["MT_all","MT_2","MT_3"]:
+        if histogram in self.make_plot_name_list(["MT"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -726,6 +729,33 @@ class Plotter(object):
           if not norebin:
             plot.Rebin(50)
             self.OverFlow_Bin(plot,0,2000,800)
+
+        if histogram in self.make_plot_name_list(["pfCandsPt"]):
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word: 
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events / 50 GeV")
+          if not norebin:
+            plot.Rebin(5)
+            self.OverFlow_Bin(plot,0,200,500)
+
+        if histogram in self.make_plot_name_list(["pfCandsDzPV"]):
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word: 
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events / 50 GeV")
+          if not norebin:
+            plot.Rebin(5)
+            self.OverFlow_Bin(plot,0,0.1,500)
+
+        if histogram in self.make_plot_name_list(["pfCandsDunno"]):
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word: 
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events / 50 GeV")
+          if not norebin:
+            plot.Rebin(5)
+            self.OverFlow_Bin(plot,0,0.1,500)            
 
         if "MuPFIso_" in histogram:
           if canvas: self.Log_Setter(plot,canvas,0.1)
@@ -783,7 +813,7 @@ class Plotter(object):
             if "Reversed" in self.settings["Misc"]: self.Reversed_Integrator(plot)
 
 
-        if histogram in ["HT_all","HT_2","HT_3","HT_1","HT_4"]: # note: this should eventually be done for all histos
+        if histogram in self.make_plot_name_list(["HT"]): # note: this should eventually be done for all histos
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -946,7 +976,7 @@ class Plotter(object):
             plot.SetAxisRange(0.55,1.5,"Y")
             plot.SetAxisRange(0.0,3.0,"Z")
 
-        if histogram in ["MHTovMET_all","MHTovMET_2","MHTovMET_3","MHTovMET_Scaled_all","MHTovMET_Scaled_2","MHTovMET_Scaled_3"]:
+        if histogram in self.make_plot_name_list(["MHTovMET", "MHTovMET_Scaled"]):
           if canvas: self.Log_Setter(plot,canvas,0.1)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -989,7 +1019,6 @@ class Plotter(object):
             plot.GetXaxis().SetTitle("MET")
             #plot.GetZaxis().SetRangeUser(0.8,1.2) 
           if not norebin:
-
             plot.SetTitle("")
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetXaxis().SetTitleOffset(1.3)
@@ -999,8 +1028,6 @@ class Plotter(object):
             plot.RebinX(10)
             plot.SetAxisRange(0.,5.,"Y")
             plot.SetAxisRange(0.,500.,"X")
-
-
 
         if "MHTovMET_vs_AlphaT" in histogram:
        
@@ -1014,7 +1041,6 @@ class Plotter(object):
             plot.GetXaxis().SetTitle("MHTovMET")
 
           if not norebin:
-
             plot.SetTitle("")
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetXaxis().SetTitleOffset(1.3)
@@ -1024,7 +1050,7 @@ class Plotter(object):
             plot.RebinX(10)
             plot.SetAxisRange(1.0,3.0,"Y")
 
-        if histogram == "AlphaT_all" or histogram == "AlphaT_2" or histogram == "AlphaT_3": 
+        if histogram in self.make_plot_name_list(["AlphaT"]): 
 
           axis_rebin = array('d',[0.00,0.10,0.15,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.90,1.00,1.25,1.50,1.75,2.0,2.50,3.00,3.10,10.0])
           if canvas: self.Log_Setter(plot,canvas,0.5)
@@ -1033,14 +1059,13 @@ class Plotter(object):
             plot.GetYaxis().SetTitle("Events")
           
           if not norebin:
-            
             a = plot.Rebin(len(axis_rebin)-1,"plot",axis_rebin )
             self.OverFlow_Bin(a,0.0,10.00,3.0)
             self.BinNormalise(a,0.05)
             if "Reversed" in self.settings["Misc"]:self.Reversed_Integrator(a)
             return a
           
-        if histogram == "AlphaT_Zoomed_all" or histogram == "AlphaT_Zoomed_2" or histogram == "AlphaT_Zoomed_3":
+        if histogram in self.make_plot_name_list(["AlphaT_Zoomed"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -1064,20 +1089,20 @@ class Plotter(object):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
             pass
-  
-        if histogram in ["LeadJetPt_","SecondJetPt_","CommonJetPt_"]:
+
+        if histogram in self.make_plot_name_list(["LeadJetPt","SecondJetPt","CommonJetPt"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
             plot.Rebin(10)
             self.OverFlow_Bin(plot,0.,1500.,500.)
 
-        if histogram in ["LeadJetEta_","SecondJetEta_","CommonJetEta_"]:
+        if histogram in self.make_plot_name_list(["LeadJetEta","SecondJetEta","CommonJetEta"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
             plot.Rebin(5)
             plot.SetAxisRange(-3.0,3.0,"X")
 
-        if histogram in ["MuEta_all","MuEta_2","MuEta_3"]:
+        if histogram in self.make_plot_name_list(["MuEta"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
             plot.Rebin(5)
@@ -1171,20 +1196,19 @@ class Plotter(object):
         return plot
 
   def Log_Setter(self,plot,canvas,min):
-      self.iflog = min
-      plot.SetMinimum(float(min))
-      if type(plot) == type(r.TH2D()):
-        #canvas.SetLogz(1)
-        canvas.SetLogy(1)
+    self.iflog = min
+    plot.SetMinimum(float(min))
+    if type(plot) == type(r.TH2D()):
+      #canvas.SetLogz(1)
+      canvas.SetLogy(1)
 
-      else:
-        canvas.SetLogy(1)
+    else:
+      canvas.SetLogy(1)
 
   def BinNormalise(self,hist,width):
-
-      for bin in range(1,hist.GetNbinsX()+1):
-         hist.SetBinContent(bin,hist.GetBinContent(bin)*(width/hist.GetBinWidth(bin)))
-         hist.SetBinError(bin,hist.GetBinError(bin)*(width/hist.GetBinWidth(bin)))
+    for bin in range(1,hist.GetNbinsX()+1):
+       hist.SetBinContent(bin,hist.GetBinContent(bin)*(width/hist.GetBinWidth(bin)))
+       hist.SetBinError(bin,hist.GetBinError(bin)*(width/hist.GetBinWidth(bin)))
 
 
   """
@@ -1192,33 +1216,33 @@ class Plotter(object):
   """
   def OverFlow_Bin(self,hist,xmin,xmax,overflow,*args ):
      
-      if args: 
-        ymin = args[0]
-        ymax = args[1]
-        overflow_y = args[2]
+    if args: 
+      ymin = args[0]
+      ymax = args[1]
+      overflow_y = args[2]
 
-        for y in range(0,hist.GetNbinsY()): 
-            set_overflowx = float(hist.Integral(hist.GetXaxis().FindBin(overflow),hist.GetNbinsX(),y+1,y+1))
-            hist.SetBinContent(hist.GetXaxis().FindBin(overflow),y+1,set_overflowx)
-            hist.SetBinContent(hist.GetXaxis().FindBin(overflow),y+1,m.sqrt(set_overflowx))
+      for y in range(0,hist.GetNbinsY()): 
+          set_overflowx = float(hist.Integral(hist.GetXaxis().FindBin(overflow),hist.GetNbinsX(),y+1,y+1))
+          hist.SetBinContent(hist.GetXaxis().FindBin(overflow),y+1,set_overflowx)
+          hist.SetBinContent(hist.GetXaxis().FindBin(overflow),y+1,m.sqrt(set_overflowx))
 
-        for x in range(0,hist.GetNbinsX()): 
-            set_overflowy = float(hist.Integral(x+1,x+1,hist.GetYaxis().FindBin(overflow_y),hist.GetNbinsY()))
-            hist.SetBinContent(x+1,hist.GetYaxis().FindBin(overflow),set_overflowy)
-            hist.SetBinError(x+1,hist.GetYaxis().FindBin(overflow),m.sqrt(set_overflowy))
+      for x in range(0,hist.GetNbinsX()): 
+          set_overflowy = float(hist.Integral(x+1,x+1,hist.GetYaxis().FindBin(overflow_y),hist.GetNbinsY()))
+          hist.SetBinContent(x+1,hist.GetYaxis().FindBin(overflow),set_overflowy)
+          hist.SetBinError(x+1,hist.GetYaxis().FindBin(overflow),m.sqrt(set_overflowy))
 
-        hist.SetAxisRange(xmin,overflow,"X")
-        hist.SetAxisRange(ymin,overflow_y,"Y")
+      hist.SetAxisRange(xmin,overflow,"X")
+      hist.SetAxisRange(ymin,overflow_y,"Y")
 
-      else:
-        overflow_bin = hist.FindBin(overflow)
-        set_overflow = float(hist.Integral(overflow_bin,hist.GetNbinsX()))
+    else:
+      overflow_bin = hist.FindBin(overflow)
+      set_overflow = float(hist.Integral(overflow_bin,hist.GetNbinsX()))
 
-        hist.SetBinContent(overflow_bin,set_overflow)
-        hist.SetBinError(overflow_bin,m.sqrt(set_overflow))
-        hist.SetAxisRange(xmin,overflow,"X")
-        additional_bin = (0.1)
-        self.max_min = [xmin,overflow+additional_bin]
+      hist.SetBinContent(overflow_bin,set_overflow)
+      hist.SetBinError(overflow_bin,m.sqrt(set_overflow))
+      hist.SetAxisRange(xmin,overflow,"X")
+      additional_bin = (0.1)
+      self.max_min = [xmin,overflow+additional_bin]
 
   def Reversed_Integrator(self,hist):
       
@@ -1255,24 +1279,26 @@ class Webpage_Maker(object):
         
       """
 
-      def __init__(self,plotnames,foldername,category,option="",extra=""):
-        self.extra = extra
-        print category
-        if "Had" in category:
+      # def __init__(self,plotnames,self.binning,category,option="",extra=""):
+      def __init__(self,settings):
+        self.extra = "" # dummy variable - can probably remove. left over from old __init__ definition
+        print settings["Category"]
+        if "Had" in settings["Category"]:
           self.category = ""
-          self.title = category
+          self.title = settings["Category"]
         else: 
-          self.category = category
-          if self.extra: self.category = category.rstrip(self.extra)
-          self.title = category
-        self.binning = foldername
-        self.Make_Page(plotnames,self.binning,option)
+          self.category = settings["Category"]
+          if self.extra: self.category = settings["Category"].rstrip(self.extra)
+          self.title = settings["Category"]
+        self.binning = settings["WebBinning"]
+        self.jet_cats = settings["jet_categories"]
+        self.Make_Page(settings["Plots"],settings["Webpage"])
 
       def ensure_dir(self,dir):
         try: os.makedirs(dir)
         except OSError as exc: pass
       
-      def Make_Page(self,plotnames,foldername,option=""): 
+      def Make_Page(self,plotnames,option=""): 
         print "\n       ================================" 
         print "       ======== Making Webpage ========"
         print "       ********************************\n\n"
@@ -1317,16 +1343,16 @@ class Webpage_Maker(object):
             self.btag_slices = {'Zero':"0-btag",'One':"1-btag",'Two':"2-btag",'Three':"3-btag","Inclusive":"Inclusive",'More_Than_Zero':"A btag",'More_Than_Two':"More Than Two",'More_Than_Three':"More Than Three"}
             self.btag_names = {'More_Than_Three':"_btag_morethanthree_"+self.category,'More_Than_Two':"_btag_morethantwo_"+self.category,'More_Than_Zero':"_btag_morethanzero_"+self.category,'Zero':"_btag_zero_"+self.category,'One':"_btag_one_"+self.category,'Three':"_btag_three_"+self.category,'Two':"_btag_two_"+self.category,"Inclusive":'_'+self.category }
 
-          self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ")
-          self.Alpha_Webpage(self.btag_slices,plotnames,link=foldername[0],outertitle="Btag Multiplicities:  ",slice="True")
+          self.Alpha_Webpage(self.binning,plotnames,link="Zero",outertitle="HT Bins:  ")
+          self.Alpha_Webpage(self.btag_slices,plotnames,link=self.binning[0],outertitle="Btag Multiplicities:  ",slice="True")
           
           #Simplified plots
-          self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ",simplified = "True")
-          self.Alpha_Webpage(self.btag_slices,plotnames,link=foldername[0],outertitle="Btag Multiplicities:  ",slice="True",simplified = "True")
+          self.Alpha_Webpage(self.binning,plotnames,link="Zero",outertitle="HT Bins:  ",simplified = "True")
+          self.Alpha_Webpage(self.btag_slices,plotnames,link=self.binning[0],outertitle="Btag Multiplicities:  ",slice="True",simplified = "True")
 
           #Stacked plots
-          self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ",stacked = "True")
-          self.Alpha_Webpage(self.btag_slices,plotnames,link=foldername[0],outertitle="Btag Multiplicities:  ",slice="True",stacked = "True")
+          self.Alpha_Webpage(self.binning,plotnames,link="Zero",outertitle="HT Bins:  ",stacked = "True")
+          self.Alpha_Webpage(self.btag_slices,plotnames,link=self.binning[0],outertitle="Btag Multiplicities:  ",slice="True",stacked = "True")
 
       def Alpha_Webpage(self,outer,inner,link="",outertitle="",slice="",simplified="",stacked=""):
  
@@ -1384,7 +1410,6 @@ class Webpage_Maker(object):
             htF.write('<a href=\"../RA1_Website_Plots.html\"> Go </a>')
             htF.write('<br><br>')
             
-            jet_array = ['2','3','all']
             btag_array = ['_','_btag_morethanzero_','_btag_morethanone_','_btag_morethantwo_','_btag_morethanthree_','_btag_zero_','_btag_one_','_btag_two_','_btag_three_']
             if "Had" in self.title: 
               for num,entry in enumerate(btag_array): btag_array[num] = (entry.rstrip('_'))
@@ -1396,7 +1421,7 @@ class Webpage_Maker(object):
               test_sorter = []
               if not slice:
                 for multi in btag_array:
-                  for label in jet_array:
+                  for label in self.jet_cats:
                     if not stacked:
                       for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+multi+self.category+'_'+i+'*.png' if simplified == "True" else j.strip('all')+label+multi+self.category+'_'+i+'*.png')):
                         sorter.append(filenames)
@@ -1405,15 +1430,18 @@ class Webpage_Maker(object):
                         sorter.append(filenames)
               else:
                 for bin in self.binning:
-                  for label in jet_array:
+                  for label in self.jet_cats:
                     if not stacked:
-                      print j,label
+                      # print j,label
                       print j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' 
                       for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' if simplified == "True" else j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png')):
                         sorter.append(filenames)
                     else:
                       for filenames in fnmatch.filter(files,'Stacked_'+j.strip('all')+label+self.btag_names[i]+'_'+bin+'.png'):
                         sorter.append(filenames)
-              for plot in sorter: htF.write('<a href='+plot+'><img width=\"30%\" src=\"'+plot+'\"></a> \n') 
+              for plot in sorter:
+                htF.write('<a href='+plot+'><img width=\"30%\" src=\"'+plot+'\"></a> \n')
+                if "_all" in plot:
+                  htF.write("<br />")
 
 
