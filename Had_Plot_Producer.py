@@ -8,42 +8,48 @@ from time import strftime, sleep
 from optparse import OptionParser
 import array, ast
 import math as m
+import shutil
 #from plottingUtils import *
 from Btag_8TeV_Plots import *
 from run_details import this_run
 
 trigger_effs = {
-  "150":1.0,
-  "200":0.80,"200_Low":0.816,"200_High":0.74,
-  "275":0.90,"275_Low":0.90,"275_High":0.666,"275_LLow":0.90,"275_HHigh":0.666,
-  "325":0.99,
-  "375":0.99,
-  "475":1.0,
-  "575":1.0,
-  "675":1.0,
-  "775":1.0,
-  "875":1.0,
-  "975":1.0,
-  "1075":1.0,
+  "150_all":1.0,"150_1":1.0,"150_2":1.0,"150_3":1.0,
+  "200_all":0.77,"200_1":.84,"200_2":0.75,"200_3":0.74,
+  "275_all":0.83,"275_1":0.97,"275_2":0.84,"275_3":0.67,
+  "325_all":0.97,"325_1":0.99,"325_2":0.97,"325_3":0.96,
+  "375_all":0.99,"375_1":0.99,"375_2":0.99,"375_3":0.99,
+  "475_all":1.0,"475_1":1.0,"475_2":1.0,"475_3":1.0,
+  "575_all":.99,"575_1":1.0,"575_2":.99,"575_3":.99,
+  "675_all":1.0,"675_1":1.0,"675_2":1.0,"675_3":.98,
+  "775_all":1.0,"775_1":1.0,"775_2":1.0,"775_3":1.0,
+  "875_all":1.0,"875_1":1.0,"875_2":1.0,"875_3":1.0,
+  "975_all":1.0,"975_1":1.0,"975_2":1.0,"975_3":1.0,
+  "1075_all":1.0,"1075_1":1.0,"1075_2":1.0,"1075_3":1.0,
 }
 
 settings = {
   "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":["MHTovMET_all", "MET_all", "MHTovMET_Full__all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","JetPt_all","JetEta_all","Number_verticies_all","Number_Good_verticies_all"],
+  "Plots":["MHTovMET_all", "MET_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","Number_Good_verticies_all"],
   "Lumo" : this_run()["had_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Had",
   "WebBinning":["200_275","275_325","325_375","375_upwards","200_upwards"],
+  "jet_categories":["1", "2", "3", "all"],
   "Misc":[],
   "MHTMET":"True",
   "Trigger":trigger_effs,
+  "SITV_plots":[False, True][1],
   }
+
+if settings["SITV_plots"]:
+  for p in ['pfCandsPt_all', 'pfCandsDzPV_all', 'pfCandsDunno_all', 'pfCandsCharge_all']:
+    settings["Plots"].append(p)
 
 print "\n>> Opening directory:", this_run()["path_name"]
 sleep(2)
 
 rootpath = "../" + this_run()["path_name"]
-# njet_ext = "_NJet"
 njet_ext = ""
 
 muon_plots = {
@@ -110,4 +116,8 @@ if __name__=="__main__":
   c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])
+  finish = Webpage_Maker(settings)
+
+  try :shutil.rmtree('./Plots')
+  except OSError as exc: pass
+

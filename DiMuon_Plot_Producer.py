@@ -11,17 +11,38 @@ from Btag_8TeV_Plots import *
 import shutil
 from run_details import this_run
 
+trigger_effs = {
+  "150_all":.989,"150_1":.989,"150_2":.989,"150_3":.988,
+  "200_all":.989,"200_1":.989,"200_2":.989,"200_3":.988,
+  "275_all":.989,"275_1":.989,"275_2":.989,"275_3":.988,
+  "325_all":.989,"325_1":.989,"325_2":.989,"325_3":.989,
+  "375_all":.989,"375_1":.989,"375_2":.989,"375_3":.989,
+  "475_all":.989,"475_1":.989,"475_2":.989,"475_3":.989,
+  "575_all":.989,"575_1":.989,"575_2":.989,"575_3":.989,
+  "675_all":.990,"675_1":.990,"675_2":.990,"675_3":.989,
+  "775_all":.989,"775_1":.989,"775_2":.989,"775_3":.989,
+  "875_all":.990,"875_1":.990,"875_2":.990,"875_3":.989,
+  "975_all":.990,"975_1":.990,"975_2":.990,"975_3":.991,
+  "1075_all":.990,"1075_1":.990,"1075_2":.990,"1075_3":.990,
+}
+
 settings = {
   "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":["MHTovMET_all","HT_all","DiMuon_Mass_all", "MHT_all","AlphaT_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","Number_Good_verticies_all"][:-3],
+  "Plots":["MHTovMET_all","HT_all","DiMuon_Mass_all", "MHT_all","AlphaT_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","Number_Good_verticies_all"],
   "Lumo" : this_run()["mu_lumi"]*10.,
   "Webpage":"btag",
   "Category":"DiMuon",
   "WebBinning":["150_200","200_275","275_325","325_375","200_upwards","375_upwards"],
+  "jet_categories":["1", "2", "3", "all"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"150":0.95,"200_Low":0.95,"275_Low":0.96,"200_High":0.95,"275_High":0.96,"325":0.96,"375":0.96,"475":0.96,"575":0.97,"675":0.97,"775":0.98,"875":0.98,"975":0.98,"1075":0.98}
+  "Trigger":trigger_effs,
+  "SITV_plots":[False, True][1]
   }
+
+if settings["SITV_plots"]:
+  for p in ['pfCandsPt_all', 'pfCandsDzPV_all', 'pfCandsDunno_all', 'pfCandsCharge_all']:
+    settings["Plots"].append(p)
 
 print ">> Opening directory:", this_run()["path_name"]
 sleep(3)
@@ -105,6 +126,8 @@ if __name__=="__main__":
   #Plotter(settings,dimuon_2d,jet_multiplicity = "True",draw_data="False")
   settings["Plots"] = ["MET_vs_MHTovMET_all","MHT_vs_MET_all","MHTovMET_all","MHTovMET_Scaled_all","MET_all","MET_Corrected_all","MHT_all","MHT_FixedThreshold_all","JetMultiplicity_all","HT_all", "JetPt_all","JetEta_all"]
   """
-  finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])
+
+  finish = Webpage_Maker(settings)
+
   try :shutil.rmtree('./Plots')
   except OSError as exc: pass

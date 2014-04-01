@@ -7,6 +7,7 @@ import glob, errno
 from time import strftime
 from optparse import OptionParser
 import array, ast
+import shutil
 import math as m
 #from plottingUtils import *
 from Btag_8TeV_Plots import *
@@ -24,17 +25,38 @@ Category - "Photon_","OneMuon","DiMuon" Used in string search when producing web
 WebBinning - Bins that you want to show information for on website.
 '''
 
+trigger_effs = {
+  "150_all":1.,"150_1":1.,"150_2":1.,"150_3":1.,
+  "200_all":1.,"200_1":1.,"200_2":1.,"200_3":1.,
+  "275_all":1.,"275_1":1.,"275_2":1.,"275_3":1.,
+  "325_all":1.,"325_1":1.,"325_2":1.,"325_3":1.,
+  "375_all":1.,"375_1":1.,"375_2":1.,"375_3":1.,
+  "475_all":1.,"475_1":1.,"475_2":1.,"475_3":1.,
+  "575_all":1.,"575_1":1.,"575_2":1.,"575_3":1.,
+  "675_all":1.,"675_1":1.,"675_2":1.,"675_3":1.,
+  "775_all":1.,"775_1":1.,"775_2":1.,"775_3":1.,
+  "875_all":1.,"875_1":1.,"875_2":1.,"875_3":1.,
+  "975_all":1.,"975_1":1.,"975_2":1.,"975_3":1.,
+  "1075_all":1.,"1075_1":1.,"1075_2":1.,"1075_3":1.,
+}
+
 settings = {
   "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":[ "PhotonPt_all", "AlphaT_all","HT_all","PhotonPFIso_all","PhotonNeutralIso_all","PhotonChargedIso_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","Number_verticies_all","Number_Good_verticies_all" ] ,
+  "Plots":[ "PhotonPt_all", "AlphaT_all","HT_all","PhotonPFIso_all","PhotonNeutralIso_all","PhotonChargedIso_all","JetMultiplicity_all","Number_Btags_all","JetPt_all","JetEta_all","Number_verticies_all","Number_Good_verticies_all" ],
   "Lumo" : this_run()["ph_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Photon",
   "WebBinning":["375_upwards"],
+  "jet_categories":["1", "2", "3", "all"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"200":1.0,"275":1.0,"325":1.0,"375":1.0,"475":1.0,"575":1.0,"675":1.0,"775":1.0,"875":1.0,"975":1.0,"1075":1.0}
+  "Trigger":trigger_effs,
+  "SITV_plots":[False, True][1]
       }
+
+if settings["SITV_plots"]:
+  for p in ['pfCandsPt_all', 'pfCandsDzPV_all', 'pfCandsDunno_all', 'pfCandsCharge_all']:
+    settings["Plots"].append(p)
 
 rootDirectory = "../" + this_run()["path_name"]
 
@@ -100,4 +122,9 @@ if __name__=="__main__":
   d = Plotter(settings,photon_zero_btag_plots,jet_multiplicity = "True",make_ratio="True")
   e = Plotter(settings,photon_one_btag_plots,jet_multiplicity = "True",make_ratio="True")
 
-  finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])
+  # finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])
+  finish = Webpage_Maker(settings)
+
+  try :shutil.rmtree('./Plots')
+  except OSError as exc: pass
+
