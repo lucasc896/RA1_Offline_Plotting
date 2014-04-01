@@ -29,32 +29,38 @@ code. These include Normalising histograms to just compare shapes of distributio
 
 baseTime = time()
 
-trigger_effs = {"150":0.88,
-                "200_Low":0.88,"200_High":0.88,
-                "275_Low":0.88,"275_High":0.88,
-                "325":0.88,
-                "375":0.88,
-                "475":0.88,
-                "575":0.88,
-                "675":0.88,
-                "775":0.88,
-                "875":0.88,
-                "975":0.88,
-                "1075":0.88}
+trigger_effs = {
+  "150_all":.893,"150_1":.891,"150_2":.891,"150_3":.898,
+  "200_all":.893,"200_1":.891,"200_2":.891,"200_3":.898,
+  "275_all":.895,"275_1":.893,"275_2":.893,"275_3":.898,
+  "325_all":.897,"325_1":.895,"325_2":.895,"325_3":.900,
+  "375_all":.899,"375_1":.897,"375_2":.897,"375_3":.903,
+  "475_all":.900,"475_1":.898,"475_2":.898,"475_3":.905,
+  "575_all":.902,"575_1":.900,"575_2":.900,"575_3":.906,
+  "675_all":.903,"675_1":.901,"675_2":.901,"675_3":.907,
+  "775_all":.904,"775_1":.902,"775_2":.902,"775_3":.908,
+  "875_all":.905,"875_1":.904,"875_2":.904,"875_3":.906,
+  "975_all":.904,"975_1":.903,"975_2":.903,"975_3":.906,
+  "1075_all":.904,"1075_1":.900,"1075_2":.900,"1075_3":.912,
+}
 
 settings = {
   "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
   "Plots":["MHTovMET_all","MHT_all","AlphaT_all","JetPt_all","HT_all","Number_Btags_all","JetMultiplicity_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT_all","Number_Good_verticies_all"],
-  # "Plots":["AlphaT_all", "MuPt_all"],
   "Lumo" : this_run()["mu_lumi"]*10.,
   "Webpage":"btag",
   "Category":"OneMuon",
   "WebBinning":["150_200","200_275","275_325","325_375","200_upwards","375_upwards"],
-  # "WebBinning":["200_275","275_325","325_375","375_475", "475_575"],
+  "jet_categories":["1", "2", "3", "all"],
   "Misc":[],
   "MHTMET":"True",
-  "Trigger":{"150":0.88,"200_Low":0.88,"275_Low":0.88,"200_High":0.88,"275_High":0.88, "325":0.88,"375":0.88,"475":0.88,"575":0.88,"675":0.88,"775":0.88,"875":0.88,"975":0.88,"1075":0.88}
+  "Trigger":trigger_effs,
+  "SITV_plots":[False, True][1]
   }
+
+if settings["SITV_plots"]:
+  for p in ['pfCandsPt_all', 'pfCandsDzPV_all', 'pfCandsDunno_all', 'pfCandsCharge_all']:
+    settings["Plots"].append(p)
 
 print ">> Opening directory:", this_run()["path_name"]
 sleep(3)
@@ -151,7 +157,7 @@ if __name__=="__main__":
   #Plotter(settings,muon_2d_ratios,jet_multiplicity = "True",draw_data="True")
   #settings["Plots"] = ["MET_vs_MHTovMET_all","MHT_vs_MET_all"]#,"MHTovMET_all","MHTovMET_Scaled_all","MET_all","MET_Corrected_all","MHT_all","MHT_FixedThreshold_all","JetMultiplicity_all","HT_all", "JetPt_all","JetEta_all"]
   
-  finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])
+  finish = Webpage_Maker(settings)
 
   try :shutil.rmtree('./Plots')
   except OSError as exc: pass
