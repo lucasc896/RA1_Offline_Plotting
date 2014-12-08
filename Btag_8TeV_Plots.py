@@ -13,12 +13,19 @@ from sys import exit
 
 r.gROOT.SetBatch(r.kTRUE)
 
+def print_progress(percent):
+    width = 60
+
+    sys.stdout.write("\t  %.2f%% complete." % percent)
+    sys.stdout.write(" |"+"="*int(percent*0.01*width)+" "*int((1.-percent*0.01)*width)+">     \r")
+    sys.stdout.flush()
+
 class Plotter(object):
 
   def __init__(self,settings,sample_list,jet_multiplicity = "",make_ratio = "False",draw_data = "True"):
     #================================== Preamble
     self.baseTime = time()
-    print " Selecting tdr style"
+    # print " Selecting tdr style"
     r.gROOT.ProcessLine(".L tdrstyle.C")
     r.setstyle()
     r.gROOT.SetBatch(True)
@@ -33,7 +40,7 @@ class Plotter(object):
     self.Draw_Data = draw_data
     self.sample_list = sample_list
     self.MHTMETcorrections = settings["MHTMET"]
-    print "DoRatio : %s" %self.DoRatios
+    # print "DoRatio : %s" %self.DoRatios
     # Apply options
     self.splash_screen()
     self.jetcatdict = { "2":"Low","3":"High"}
@@ -54,7 +61,8 @@ class Plotter(object):
     print "| XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX |"
     print "|==================  STARTING  BINNED ALPHA T PLOTTING ======================|"
     print "| XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX |"
-    print "|============================================================================|"
+    print "|============================================================================|\n"
+    print ">>> Plotting for %s btag multiplicity.\n" % self.sample_list[self.sample_list.keys()[0]][-1]
 
   def ensure_dir(self,dir):
     try:
@@ -80,15 +88,15 @@ class Plotter(object):
                 if subkey.GetName() in settings["Plots"]:
                   if self.jet_multi == "True":
                     base = subkey.GetName().strip('all')
-                    if "pfCands" not in base:
-                      for entry in ['all','2','3']:
-                        self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
-                        self.Hist_List.append(base+entry)
-                    else:
-                      base = base.strip('0')
-                      for entry in ['0','2','3']:
-                        self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
-                        self.Hist_List.append(base+entry)                      
+                    # if "pfCands" not in base:
+                    for entry in ['all','2','3']:
+                      self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
+                      self.Hist_List.append(base+entry)
+                    # else:
+                    #   base = base.strip('0')
+                    #   for entry in ['0','2','3']:
+                    #     self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
+                    #     self.Hist_List.append(base+entry)                      
                   else: 
                     self.Path_List.append("%s/%s" % (subdirect.GetName(),subkey.GetName()))
                     self.Hist_List.append(subkey.GetName())
@@ -97,7 +105,7 @@ class Plotter(object):
   def Directory_Maker(self):
     htBins = self.settings["dirs"]
     self.Dir_Binning = []
-    print "\n Making Directory ::: Plots :::" 
+    # print "\n Making Directory ::: Plots :::" 
     self.ensure_dir("Plots")
     self.base = os.getcwd()
     os.chdir("Plots")
@@ -115,10 +123,15 @@ class Plotter(object):
   If this path is then within our Webbinning folder, eg. ones we want to show on the website we then pass this onto MakePlots
   """
   def Plotting_Option(self,settings,sample_list):
-        self.Directory_Maker()
+        
+        self.Directory_Maker() # make the outpute $PWD/Plots directory
+        
+        # print "\t=== Making Plots ==="
+
         for num,histpath in enumerate(self.Path_List):
           name = self.Hist_List[num]
           ht = (histpath.split('/')[0])[len(self.Directory_Name):]
+
           if ht in settings["WebBinning"] : self.Make_Plots(ht,name,histpath)
 
           # These two plots here are when we want to make combined HT bins plots 375,200 upwards. the split is to strip the
@@ -127,6 +140,9 @@ class Plotter(object):
           if ht in ["375_475"]: self.Make_Plots(ht,name,histpath,combine = "True",histpath= (histpath.split('/')[0][:-7]))
           if ht in ["200_275"]: self.Make_Plots(ht,name,histpath,combine = "True",histpath= (histpath.split('/')[0][:-7]))
 
+          print_progress(100.*(float(num)/float(len(self.Path_List))))
+          # NOTE: works best if you change 'Root.ErrorIgnoreLevel:   Error' in $ROOTSYS/etc/system.rootrc 
+        print_progress(100.)
         os.chdir(self.base)
  
   def MakePad(self,plot):
@@ -149,7 +165,9 @@ class Plotter(object):
           self.ratio = data.Clone()
           #self.ratio.Add(mc,-1)
           self.ratio.Divide(mc)
-          self.ratio.GetYaxis().SetRangeUser(0.5,1.5)
+          # print histname, self.jetcategory, self.sample_list[self.sample_list.keys()[0]][-1]
+          # self.ratio.GetYaxis().SetRangeUser(0.5,1.5)
+          self.ratio.GetYaxis().SetRangeUser(-1.,3.)
           self.ratio.GetYaxis().SetTitle("Data/MC")
           self.ratio.GetYaxis().SetTitleOffset(0.5)
           self.ratio.GetYaxis().SetLabelSize(0.11)
@@ -174,7 +192,7 @@ class Plotter(object):
             except ZeroDivisionError: error_changer.SetBinError(i+1,0)
           r.gStyle.SetOptFit(1)
           self.ratio_error = r.TGraphErrors(error_changer)
-          self.ratio.Fit(fit)
+          self.ratio.Fit(fit,"Q")
           self.ratio_error.SetFillStyle(3244)
           self.ratio_error.SetFillColor(17)
           #self.bv.SetFillColor(39)
@@ -206,10 +224,9 @@ class Plotter(object):
       Any options are added in Hist_Options  
       The same is then done for all MC files in MC_Draw
       A bunch of other lists are filled for producing different stacked, simplified plots and also drawing on the Total EWK band
-
-
       """
-      print "At Histogram %s %s" %(rootpath,histname)
+
+      # print "At Histogram %s %s" %(rootpath,histname)
       self.DataFile =  r.TFile.Open("../%s" %self.DATA_FILE)
       self.Plot_Closer = [self.DataFile]
       plot  = self.DataFile.Get("%s" %rootpath)
@@ -244,10 +261,8 @@ class Plotter(object):
       
       # If Draw_Data is false then all data points are set to 0
       if self.Draw_Data == "False" : self.Floor_Data(plot) 
-  
       # Hist Options are applied such as axis range, logY settings and rebinning
       plot = self.Hist_Options(histname,plot,canvas = self.up if self.DoRatios == "True" else self.c1,word=True)
-
       self.max_maker = [plot]
       self.Legend_Maker()
       if self.Draw_Data == "False" : self.leg.AddEntry(plot,"Data","P")
@@ -277,7 +292,7 @@ class Plotter(object):
       if self.DoRatios == "True" and type(plot) != type(r.TH2D()): self.MakeMCRatio(histname,plot,self.total_background)
 
       # Save files in png,pdf and .C formats
-      for ext in ['png','pdf','C']: self.c1.SaveAs("%s/%s/%s_%s%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"_reversed" if "Reversed" in self.settings["Misc"] else "_profile" if "Profile" in self.settings["Misc"] else "",ext)) 
+      for ext in ['png','C','pdf'][:2]: self.c1.SaveAs("%s/%s/%s_%s%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"_reversed" if "Reversed" in self.settings["Misc"] else "_profile" if "Profile" in self.settings["Misc"] else "",ext)) 
       
       # Make Stacked plots and also Simplified plots here
       if type(plot) != type(r.TH2D()) and "Profile" not in self.settings["Misc"]:
@@ -351,7 +366,7 @@ class Plotter(object):
     self.TextBox(plot,(rootpath.split("/")[0] if not combine else (rootpath.split("/")[0]).rstrip("475")),histname)
     self.TagBox()
     if self.DoRatios == "True": self.MakeMCRatio(histname,plot,mc_plot)
-    for ext in ['png','pdf','C']: self.c1.SaveAs("%s/%s/Simplified_%s_%s_normalised_%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"reversed" if "Reversed" in self.settings["Misc"] else "",ext))  
+    for ext in ['png','C','pdf'][:2]: self.c1.SaveAs("%s/%s/Simplified_%s_%s_normalised_%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"reversed" if "Reversed" in self.settings["Misc"] else "",ext))  
 
   def Stack_Draw(self,data,mc_array,htbin,histname,rootpath,combine=""):
     self.c1.cd(1)
@@ -367,7 +382,7 @@ class Plotter(object):
     self.TextBox(data,(rootpath.split("/")[0] if not combine else (rootpath.split("/")[0]).rstrip("475")),histname)
     self.TagBox()
     if self.DoRatios == "True": self.MakeMCRatio(histname,data,self.total_background)
-    for ext in ['png','pdf','C']: self.c1.SaveAs("%s/%s/Stacked_%s_%s%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"reversed" if "Reversed" in self.settings["Misc"] else "" ,ext))  
+    for ext in ['png','C','pdf'][:2]: self.c1.SaveAs("%s/%s/Stacked_%s_%s%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"reversed" if "Reversed" in self.settings["Misc"] else "" ,ext))  
 
   # Sorted stacked files with Lowest yield on the bottom to highest on top
   def Stack_Sorter(self,mc_array):
@@ -407,7 +422,7 @@ class Plotter(object):
     mc_stacker.Add(mc_combined)
     mc_stacker.Draw("SAMEHIST")
     if self.simple_draw_sms: 
-    #    self.simple_draw_sms.SetMarkerStyle(20)
+        self.simple_draw_sms.SetLineStyle(2)
         #mc_stacker.Add(self.simple_draw_sms)
         self.simple_draw_sms.Draw("SAMEHIST")
     mc_combined.Draw("SAMEHIST")
@@ -422,7 +437,7 @@ class Plotter(object):
     self.TagBox()
     data.Draw("PSAME")
     if self.DoRatios == "True": self.MakeMCRatio(histname,data,total_mc)
-    for ext in ['png']: # ['png','pdf','C']:
+    for ext in ['png','C']: # ['png','pdf','C']:
       self.c1.SaveAs("%s/%s/Simplified_%s_%s%s.%s" %(htbin,histname,histname,(rootpath.split("/")[0]).rsplit('_',1)[0]+"_upwards" if combine == "True" else  rootpath.split("/")[0],"reversed" if "Reversed" in self.settings["Misc"] else "", ext))
     
   
@@ -452,6 +467,7 @@ class Plotter(object):
       self.draw_error.append(errorbarplot)
       self.draw_error_simple.append(errorbarplot)
       self.totmcplot.SetLineColor(3)
+      self.totmcplot.SetLineStyle(1)
       self.leg.AddEntry(self.totmcplot,"Combined SM","L")
       self.totmcplot.SetLineWidth(3)
       self.max_maker.append(self.totmcplot)
@@ -487,7 +503,7 @@ class Plotter(object):
           if temp > highest: highest = temp
         if self.iflog : self.ymax = highest * 10
         else: self.ymax = highest * 1.5
-        self.max_maker[0].GetYaxis().SetRangeUser(self.iflog,self.ymax)
+        self.max_maker[0].GetYaxis().SetRangeUser(0.11,self.ymax)#self.iflog,self.ymax)
 
   def TextBox(self,plot,htbin,histname):
     Textbox = r.TLatex()
@@ -588,41 +604,54 @@ class Plotter(object):
             self.Add_MCplot("qcd_plot",rootpath,histname,htbin,7,"QCD",self.QCDFile,histpath,combine=combine,style="10")
           if sample[2] == "SMS": 
             self.SMSFile = r.TFile.Open("../%s" %sample[0])
-            self.Add_MCplot("sms_plot",rootpath,histname,htbin,2,"SMS",self.SMSFile,histpath,combine=combine)
+            # self.Add_MCplot("sms_plot",rootpath,histname,htbin,2,"SMS",self.SMSFile,histpath,combine=combine,style="2")
+            self.Add_MCplot("sms_plot",rootpath,histname,htbin,r.kGreen,"SMS",self.SMSFile,histpath,combine=combine,style="2")
 
           
   def Add_MCplot(self,mcplot,rootpath,histname,htbin,color,leg_entry,File,histpath,combine = "",style=""):
-       
-      mcplot  = File.Get("%s" %rootpath)
+
+
+      mcplot = File.Get("%s" %rootpath)
       self.jetcategory = histname.split('_')[-1]
 
-      
+
       if self.jetcategory in ["2","3"]:
         mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
       else:
-        mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0] + "_Low"])
+        mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0] + "_Low"]) #FIXME: change to new system
+
 
       """
       MHT/MET sideband plots added here. Comment out to ignore
       """ 
-      htsplit = htbin.split('_')
-      try : midht = (float(htsplit[0])+float(htsplit[1]))/2
-      except IndexError:  midht = float(htsplit[0])
+      # htsplit = htbin.split('_')
+      # try : midht = (float(htsplit[0])+float(htsplit[1]))/2
+      # except IndexError:  midht = float(htsplit[0])
 
       if self.MHTMETcorrections == "True":  self.Sideband_Corrections(mcplot,leg_entry)
         
+
+
       #Used when combining over all HT bins 200_upwards, 375_upwards
       if combine: self.Plot_Combiner(mcplot,self.settings["dirs"][self.dir_num:],histpath,histname,File,leg_entry,add_jet_mult = ("True" if histname.split('_')[-1] == '3' else "False"))
 
       mcplot.GetSumw2()
-      mcplot.Scale(float(self.settings["Lumo"]))
+
+      if "SMS" not in leg_entry:
+        mcplot.Scale(float(self.settings["Lumo"]))
+      else:
+        ##@@ need to account for the factor of 10 in self.settings["Lumo"]!!
+        # mcplot.Scale(float(self.settings["Lumo"])*0.00028) # scale factor for 128059 evts of 400GeV stop production (xs = 0.0356pb)
+        # mcplot.Scale(float(self.settings["Lumo"])*0.000957) # (250,230), T2cc 582301 evts, xs = 5.57596
+        mcplot.Scale(float(self.settings["Lumo"])*0.000959) # (250,170), T2cc 581438 evts, xs = 5.57596
+        # mcplot.Scale(float(self.settings["Lumo"])*0.05256) # (225,125) T2bw 0p75, 18853 evts, xs = 9.90959
+
       mcplot.SetLineColor(int(color))
       self.leg.AddEntry(mcplot,str(leg_entry),"L")
       mcplot.SetLineWidth(3)
       
       if style: mcplot.SetLineStyle(int(style))
       mcplot = self.Hist_Options(histname,mcplot)
-      
 
       if leg_entry =="Z\\rightarrow \\nu\\bar{\\nu}":
         self.simple_draw_zinv = mcplot.Clone()
@@ -636,6 +665,7 @@ class Plotter(object):
         errorbarplot = r.TGraphErrors(mcplot)
         errorbarplot.SetFillColor(int(color))
         errorbarplot.SetFillStyle(3008)
+        errorbarplot.SetLineStyle(2)
         self.draw_error_simple.append(errorbarplot)
 
       if leg_entry =="t\\bar{t}":
@@ -656,7 +686,8 @@ class Plotter(object):
 
       #All plots added here to be drawn later
       self.max_maker.append(mcplot)
-      if leg_entry != "SMS" : self.total_mc_maker.append(mcplot)
+      # if leg_entry != "SMS" : self.total_mc_maker.append(mcplot)
+      self.total_mc_maker.append(mcplot)
       if leg_entry != "QCD" and leg_entry != "SMS": self.ewk_mc_maker.append(mcplot)
       self.Plot_Closer.append(File)
 
@@ -668,8 +699,17 @@ class Plotter(object):
       self.leg.SetFillColor(0)
       self.leg.SetLineColor(0)
 
-  def Hist_Options(self,histogram,plot,canvas="",word = "",norebin=""):
+  def make_plot_name_list(self, hist_names = []):
+    """ returns a list of all combinations of arg and jetcats"""
 
+    out = []
+
+    for i in itertools.product(hist_names, ["2", "3", "all"]):
+      out.append( i[0] + "_" + i[1] )
+
+    return out
+
+  def Hist_Options(self,histogram,plot,canvas="",word = "",norebin=""):
 
         """
         Hist options added in here
@@ -680,8 +720,9 @@ class Plotter(object):
         Global changes should be done in the norebin section.
 
         """ 
-        if word: print "Applying %s Options" % histogram
-       
+
+        # if word: print "Applying %s Options" % histogram       
+
         if histogram in ["EffectiveMass_all","EffectiveMass_2","EffectiveMass_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
@@ -691,14 +732,33 @@ class Plotter(object):
             plot.Rebin(50)
             self.OverFlow_Bin(plot,0,2500,1600)
 
+        if histogram in ["ComMinBiasDPhi_all","ComMinBiasDPhi_2","ComMinBiasDPhi_3", "ComMinBiasDPhi_acceptedJets_all","ComMinBiasDPhi_acceptedJets_2","ComMinBiasDPhi_acceptedJets_3"]:
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word: 
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events")
+          if not norebin:
+            plot.Rebin(10)
+            self.OverFlow_Bin(plot,0,3.15,3.15)
+
         if histogram in ["MHT_all","MHT_2","MHT_3","MHT_FixedThreshold_all","MHT_FixedThreshold_2","MHT_FixedThreshold_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 50 GeV")
           if not norebin:
-            plot.Rebin(50)
+            plot.Rebin(5)
+            # plot.Rebin(50)
             self.OverFlow_Bin(plot,0,600,500)
+
+        if histogram in ["MHTPhi_all","MHTPhi_2","MHTPhi_3"]:
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word: 
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events / 0.1 rad")
+          if not norebin:
+            plot.Rebin(10)
+            # self.OverFlow_Bin(plot,0,2500,500)
        
         if histogram in ["MET_all","MET_2","MET_3","MET_Corrected_all","MET_Corrected_2","MET_Corrected_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
@@ -706,8 +766,18 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 25 GeV")
           if not norebin:
-            plot.Rebin(25)
+            plot.Rebin(5)
+            # plot.Rebin(25)
             self.OverFlow_Bin(plot,0,2500,500)
+
+        if histogram in ["METPhi_all","METPhi_2","METPhi_3"]:
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word: 
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events / 0.1 rad")
+          if not norebin:
+            plot.Rebin(10)
+            # self.OverFlow_Bin(plot,0,2500,500)
 
         if histogram in ["MT_all","MT_2","MT_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
@@ -718,13 +788,14 @@ class Plotter(object):
             plot.Rebin(50)
             self.OverFlow_Bin(plot,0,2000,800)
 
+
         if "MuPFIso_" in histogram:
           if canvas: self.Log_Setter(plot,canvas,0.1)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 0.02")
           if not norebin:
-            plot.Rebin(20)
+            plot.Rebin(10)
             self.OverFlow_Bin(plot,0,2.,0.16)
 
         if "MuHIso_" in histogram:
@@ -760,7 +831,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 25 GeV")
           if not norebin:
-            plot.Rebin(10)
+            plot.Rebin(20)
           self.OverFlow_Bin(plot,10,2010,1000)
           plot.GetXaxis().SetRangeUser(0., 1000.)
 
@@ -944,7 +1015,8 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 0.1")
           if not norebin:
-            plot.Rebin(25)
+            # plot.Rebin(25)
+            plot.Rebin(5)
             self.OverFlow_Bin(plot,0,10.,5.0)
 
         if "MHT_vs_MET" in histogram:
@@ -965,8 +1037,8 @@ class Plotter(object):
             plot.GetXaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("MET")
             plot.GetXaxis().SetTitle("MHT")
-            plot.RebinY(10)
-            plot.RebinX(10)
+            # plot.RebinY(10)
+            # plot.RebinX(10)
             plot.SetAxisRange(0.,500.,"Y")
             plot.SetAxisRange(0.,500.,"X")
 
@@ -994,7 +1066,7 @@ class Plotter(object):
 
 
 
-        if "MHTovMET_vs_AlphaT" in histogram:
+        if histogram in ["MHTovMET_vs_AlphaT_all", "MHT_MET_vs_alphaT__all", "MHT_MET_vs_alphaT__2", "MHT_MET_vs_alphaT__3"]:
        
           if canvas: self.Log_Setter(plot,canvas,0.1)
 
@@ -1029,6 +1101,12 @@ class Plotter(object):
             a = plot.Rebin(len(axis_rebin)-1,"plot",axis_rebin )
             self.OverFlow_Bin(a,0.0,10.00,3.0)
             self.BinNormalise(a,0.05)
+
+            # a.SetMinimum(0.000000000000001)
+            
+            # bin = a.FindBin(1.6)
+            # print a.GetBinContent(bin)
+
             if "Reversed" in self.settings["Misc"]:self.Reversed_Integrator(a)
             return a
           
@@ -1057,22 +1135,22 @@ class Plotter(object):
           if not norebin:
             pass
   
-        if histogram in ["LeadJetPt_","SecondJetPt_","CommonJetPt_"]:
-          if canvas: self.Log_Setter(plot,canvas,0.5)
-          if not norebin:
-            plot.Rebin(20)
-            self.OverFlow_Bin(plot,0.,1500.,500.)
-
-        if histogram in ["LeadJetEta_","SecondJetEta_","CommonJetEta_"]:
+        if histogram in self.make_plot_name_list(["LeadJetPt","SecondJetPt","CommonJetPt"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
             plot.Rebin(10)
-            plot.SetAxisRange(-3.0,3.0,"X")
+            self.OverFlow_Bin(plot,0.,1500.,500.)
 
-        if histogram in ["MuEta_all","MuEta_2","MuEta_3"]:
+        if histogram in self.make_plot_name_list(["LeadJetEta","SecondJetEta","CommonJetEta"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
-            plot.Rebin(5)
+            plot.Rebin(2)
+            plot.SetAxisRange(-3.0,3.0,"X")
+
+        if histogram in ["MuEta_all","MuEta_2","MuEta_3", "SecondMuEta_all", "SecondMuEta_2", "SecondMuEta_3"]:
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if not norebin:
+            plot.Rebin(2)
             plot.SetAxisRange(-3.0,3.0,"X")
 
         if "PhotonPt_" in histogram:
@@ -1289,7 +1367,7 @@ class Webpage_Maker(object):
               counter = 0
               htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/'+i+'.html','w')
               htF.write('Author: Darren Burton<br> \n')
-              htF.write('Analyser: Chris Lucas<br> \n')
+              htF.write('Analyst: Chris Lucas<br> \n')
               htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
               htF.write('<center>\n <p> \n <font size="5"> Binned Muon Control Sample </font>\n </p>\n') 
               htF.write('<font size="3">Results for :  '+i+' </font><br> \n')
@@ -1323,9 +1401,9 @@ class Webpage_Maker(object):
           self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ")
           self.Alpha_Webpage(self.btag_slices,plotnames,link=foldername[0],outertitle="Btag Multiplicities:  ",slice="True")
           
-          #Simplified plots
-          self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ",simplified = "True")
-          self.Alpha_Webpage(self.btag_slices,plotnames,link=foldername[0],outertitle="Btag Multiplicities:  ",slice="True",simplified = "True")
+          # #Simplified plots
+          # self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ",simplified = "True")
+          # self.Alpha_Webpage(self.btag_slices,plotnames,link=foldername[0],outertitle="Btag Multiplicities:  ",slice="True",simplified = "True")
 
           #Stacked plots
           self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ",stacked = "True")
@@ -1340,7 +1418,7 @@ class Webpage_Maker(object):
             elif stacked: htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/Stacked_'+j+'_'+i+'.html','w')
             else: htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/'+j+'_'+i+'.html','w')
             htF.write('Author: Darren Burton <br> \n')
-            htF.write('Analyser: Chris Lucas <br> \n')
+            htF.write('Analyst: Chris Lucas <br> \n')
             htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
             htF.write('<center>\n <p> \n <font size="5"> '+self.title+' Plots </font>\n </p>\n') 
             htF.write('<font size="3">Results for '+j+'_'+i+' </font><br> \n')
@@ -1412,8 +1490,8 @@ class Webpage_Maker(object):
                 for bin in self.binning:
                   for label in jet_array:
                     if not stacked:
-                      print j,label
-                      print j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' 
+                      # print j,label
+                      # print j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' 
                       for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' if simplified == "True" else j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png')):
                         sorter.append(filenames)
                     else:
