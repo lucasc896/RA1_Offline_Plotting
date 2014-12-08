@@ -37,8 +37,9 @@ trigger_effs = {"200_Low":1.0,"200_High":1.0,
                 "1075_Low":1.0,"1075_High":1.0}
 
 settings = {
-  "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":[ "PhotonPt_all", "AlphaT_all","HT_all","PhotonPFIso_all","PhotonNeutralIso_all","PhotonChargedIso_all","JetMultiplicity_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","Number_verticies_all","Number_Good_verticies_all" ] ,
+  "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"][3:],
+  # "Plots":[ "PhotonPt_all", "AlphaT_all","HT_all","PhotonPFIso_all","PhotonNeutralIso_all","PhotonChargedIso_all","JetMultiplicity_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","Number_Good_verticies_all" ] ,
+  "Plots":["MET_Corrected_all"],
   "Lumo" : this_run()["ph_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Photon",
