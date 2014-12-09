@@ -485,22 +485,30 @@ class Plotter(object):
   def TextBox(self,plot,htbin,histname):
 
     hist_multi = histname.split('_')[-1]
-    multi_txt = ""
-    if hist_multi == '3':
-      multi_txt += '>'
-      multi_txt += str(hist_multi)
-    else:
-      multi_txt += '='
-      if hist_multi == 'all':
-        multi_txt += 'all'
-      else:
-        multi_txt += str(int(hist_multi)+1)
+    # multi_txt = ""
+    # if hist_multi == '3':
+    #   multi_txt += '>'
+    #   multi_txt += str(hist_multi)
+    # else:
+    #   multi_txt += '='
+    #   if hist_multi == 'all':
+    #     multi_txt += 'all'
+    #   else:
+    #     multi_txt += str(int(hist_multi)+1)
+
+    jet_txt = {
+      "1":"=2",
+      "2":"=3",
+      "3":"=4",
+      "4":">=5",
+      "all":"all",
+    }
 
     Textbox = r.TLatex()
     Textbox.SetNDC()
     Textbox.SetTextAlign(12)
     Textbox.SetTextSize(0.04)
-    Textbox.DrawLatex(0.1,0.95, htbin+'    Jet Multiplicity' + multi_txt)
+    Textbox.DrawLatex(0.1,0.95, htbin+'    Jet Multiplicity ' + jet_txt[hist_multi])
 
   def TagBox(self):
     Textbox = r.TLatex()
@@ -709,7 +717,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 50 GeV")
           if not norebin:
-            plot.Rebin(50)
+            plot.Rebin(5)
             self.OverFlow_Bin(plot,0,600,500)
        
         if histogram in self.make_plot_name_list(["MET", "MET_Corrected"]):
@@ -718,7 +726,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 25 GeV")
           if not norebin:
-            plot.Rebin(25)
+            plot.Rebin(5)
             self.OverFlow_Bin(plot,0,2500,500)
 
         if histogram in self.make_plot_name_list(["MT"]):
@@ -1108,6 +1116,16 @@ class Plotter(object):
             plot.Rebin(5)
             plot.SetAxisRange(-3.0,3.0,"X")
 
+
+        if histogram in ["ComMinBiasDPhi_all","ComMinBiasDPhi_1","ComMinBiasDPhi_2","ComMinBiasDPhi_3","ComMinBiasDPhi_4", "ComMinBiasDPhi_acceptedJets_all","ComMinBiasDPhi_acceptedJets_1","ComMinBiasDPhi_acceptedJets_2","ComMinBiasDPhi_acceptedJets_3","ComMinBiasDPhi_acceptedJets_4"]:
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word:
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events")
+          if not norebin:
+            plot.Rebin(10)
+            self.OverFlow_Bin(plot,0,3.15,3.15)
+
         if "PhotonPt_" in histogram:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
@@ -1433,7 +1451,7 @@ class Webpage_Maker(object):
                   for label in self.jet_cats:
                     if not stacked:
                       # print j,label
-                      print j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' 
+                      # print j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' 
                       for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' if simplified == "True" else j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png')):
                         sorter.append(filenames)
                     else:
