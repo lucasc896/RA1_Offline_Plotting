@@ -29,38 +29,38 @@ code. These include Normalising histograms to just compare shapes of distributio
 
 baseTime = time()
 
-trigger_effs = {
-  "150_all":.893,"150_1":.891,"150_2":.891,"150_3":.898,
-  "200_all":.893,"200_1":.891,"200_2":.891,"200_3":.898,
-  "275_all":.895,"275_1":.893,"275_2":.893,"275_3":.898,
-  "325_all":.897,"325_1":.895,"325_2":.895,"325_3":.900,
-  "375_all":.899,"375_1":.897,"375_2":.897,"375_3":.903,
-  "475_all":.900,"475_1":.898,"475_2":.898,"475_3":.905,
-  "575_all":.902,"575_1":.900,"575_2":.900,"575_3":.906,
-  "675_all":.903,"675_1":.901,"675_2":.901,"675_3":.907,
-  "775_all":.904,"775_1":.902,"775_2":.902,"775_3":.908,
-  "875_all":.905,"875_1":.904,"875_2":.904,"875_3":.906,
-  "975_all":.904,"975_1":.903,"975_2":.903,"975_3":.906,
-  "1075_all":.904,"1075_1":.900,"1075_2":.900,"1075_3":.912,
-}
+trigger_effs = {"150_1": 0.872,"150_2": 0.872,"150_3": 0.881,"150_4": 0.881, "150_all": 0.881,
+                "200_1": 0.875,"200_2": 0.875,"200_3": 0.881,"200_4": 0.881, "200_all": 0.881,
+                "275_1": 0.878,"275_2": 0.878,"275_3": 0.882,"275_4": 0.882, "275_all": 0.882,
+                "325_1": 0.879,"325_2": 0.879,"325_3": 0.884,"325_4": 0.884, "325_all": 0.884,
+                "375_1": 0.881,"375_2": 0.881,"375_3": 0.886,"375_4": 0.886, "375_all": 0.886,
+                "475_1": 0.882,"475_2": 0.882,"475_3": 0.888,"475_4": 0.888, "475_all": 0.888,
+                "575_1": 0.884,"575_2": 0.884,"575_3": 0.889,"575_4": 0.889, "575_all": 0.889,
+                "675_1": 0.885,"675_2": 0.885,"675_3": 0.890,"675_4": 0.890, "675_all": 0.890,
+                "775_1": 0.886,"775_2": 0.886,"775_3": 0.891,"775_4": 0.891, "775_all": 0.891,
+                "875_1": 0.888,"875_2": 0.888,"875_3": 0.890,"875_4": 0.890, "875_all": 0.890,
+                "975_1": 0.887,"975_2": 0.887,"975_3": 0.890,"975_4": 0.890, "975_all": 0.890,
+                "1075_1":0.884,"1075_2":0.884,"1075_3":0.896,"1075_4":0.896, "1075_all":0.896,}
 
 settings = {
-  "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  "Plots":["MHTovMET_all","MHT_all","AlphaT_all","JetPt_all","HT_all","Number_Btags_all","JetMultiplicity_all","JetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT_all","Number_Good_verticies_all"],
+  "dirs":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"][4:],
+  # "Plots":["MHTovMET_all","MHT_all","MET_all","MET_Corrected_all","AlphaT_all","CommonJetPt_all","HT_all","Number_Btags_all","JetMultiplicity_all","CommonJetEta_all","MuPt_all","MuEta_all","MuPFIso_all","MT_all","Number_Good_verticies_all","LeadJetPt_all","SecondJetPt_all"][:4],
+  # "Plots":["ComMinBiasDPhi_all", "ComMinBiasDPhi_acceptedJets_all"],
+"Plots":["LeadJetEta_all"],
   "Lumo" : this_run()["mu_lumi"]*10.,
   "Webpage":"btag",
   "Category":"OneMuon",
-  "WebBinning":["150_200","200_275","275_325","325_375","200_upwards","375_upwards"],
-  "jet_categories":["1", "2", "3", "all"],
+  # "WebBinning":["150_200","200_275","275_325","325_375","200_upwards","375_upwards"],
+  "WebBinning":["150_200","200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075", "375_upwards", "200_upwards"][4:-1],
   "Misc":[],
-  "MHTMET":"True",
+  "MHTMET":"False",
   "Trigger":trigger_effs,
-  "SITV_plots":[False, True][1]
+  "SITV_plots":[False, True][0]
   }
 
 if settings["SITV_plots"]:
   for p in ['pfCandsPt_all', 'pfCandsDzPV_all', 'pfCandsDunno_all', 'pfCandsCharge_all']:
-    settings["Plots"].append(p)
+    settings["Plots"].append(p) 
 
 print ">> Opening directory:", this_run()["path_name"]
 sleep(3)
@@ -93,6 +93,7 @@ muon_plots = {
      "mc7":("./"+rootpath+"/Muon_DiBoson.root","OneMuon_","Di-Boson","Muon","Inclusive"),
      #"mc8":("./"+rootpath+"/Muon_QCD.root","OneMuon_","QCD","Muon","Inclusive"), 
      "mc9":("./"+rootpath+"/Muon_SingleTop.root","OneMuon_","Single_Top","Muon","Inclusive"),
+     # "mc10":("./"+rootpath+"/Muon_SMS.root","OneMuon_","SMS","Muon","Inclusive"),
     }
 
 muon_one_btag_plots = {
@@ -104,7 +105,8 @@ muon_one_btag_plots = {
      "mcb5":("./"+rootpath+"/Muon_DY"+njet_ext+".root","btag_one_OneMuon_","DY","Muon","One"),
      "mcb6":("./"+rootpath+"/Muon_SingleTop.root","btag_one_OneMuon_","Single_Top","Muon","One"),
      "mcb7":("./"+rootpath+"/Muon_DiBoson.root","btag_one_OneMuon_","Di-Boson","Muon","One"),
-    # "mcb8":("./"+rootpath+"/Muon_QCD.root","btag_one_OneMuon_","QCD","Muon","One"), 
+    # "mcb8":("./"+rootpath+"/Muon_QCD.root","btag_one_OneMuon_","QCD","Muon","One"),
+      # "mcb9":("./"+rootpath+"/Muon_SMS.root","btag_one_OneMuon_","SMS","Muon","One"),
     }
 
 
@@ -116,7 +118,8 @@ muon_two_btag_plots = {
      "mcb5":("./"+rootpath+"/Muon_DY"+njet_ext+".root","btag_two_OneMuon_","DY","Muon","Two"),
      "mcb6":("./"+rootpath+"/Muon_SingleTop.root","btag_two_OneMuon_","Single_Top","Muon","Two"),
      "mcb7":("./"+rootpath+"/Muon_DiBoson.root","btag_two_OneMuon_","Di-Boson","Muon","Two"), 
-     #"mcb8":("./"+rootpath+"/Muon_QCD.root","btag_two_OneMuon_","QCD","Muon","Two"),   
+     #"mcb8":("./"+rootpath+"/Muon_QCD.root","btag_two_OneMuon_","QCD","Muon","Two"),
+     # "mcb9":("./"+rootpath+"/Muon_SMS.root","btag_two_OneMuon_","SMS","Muon","Two"),
     }
 
 
@@ -129,6 +132,7 @@ muon_zero_btag_plots = {
      "mcb6":("./"+rootpath+"/Muon_SingleTop.root","btag_zero_OneMuon_","Single_Top","Muon","Zero"),
      "mcb7":("./"+rootpath+"/Muon_DiBoson.root","btag_zero_OneMuon_","Di-Boson","Muon","Zero"),
      #"mcb8":("./"+rootpath+"/Muon_QCD.root","btag_zero_OneMuon_","QCD","Muon","Zero"),
+     # "mcb9":("./"+rootpath+"/Muon_SMS.root","btag_zero_OneMuon_","SMS","Muon","Zero"),
     }
 
 
@@ -141,13 +145,14 @@ muon_morethanzero_btag_plots = {
      "mcb7":("./"+rootpath+"/Muon_DiBoson.root","btag_morethanzero_OneMuon_","Di-Boson","Muon","Zero"),
      #"mcb8":("./"+rootpath+"/Muon_QCD.root","btag_morethanzero_OneMuon_","QCD","Muon","Zero"), 
      "mcb9":("./"+rootpath+"/Muon_SingleTop.root","btag_morethanzero_OneMuon_","Single_Top","Muon","Zero"),
+     # "mcb9":("./"+rootpath+"/Muon_SMS.root","btag_morethanzero_OneMuon_","SMS","Muon","Zero"),
     }
 
 
 if __name__=="__main__":
   a = Plotter(settings,muon_plots,jet_multiplicity = "True",make_ratio= "True")
-  b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  # b = Plotter(settings,muon_morethanzero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
+  # c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   
@@ -157,7 +162,7 @@ if __name__=="__main__":
   #Plotter(settings,muon_2d_ratios,jet_multiplicity = "True",draw_data="True")
   #settings["Plots"] = ["MET_vs_MHTovMET_all","MHT_vs_MET_all"]#,"MHTovMET_all","MHTovMET_Scaled_all","MET_all","MET_Corrected_all","MHT_all","MHT_FixedThreshold_all","JetMultiplicity_all","HT_all", "JetPt_all","JetEta_all"]
   
-  finish = Webpage_Maker(settings)
+  finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])
 
   try :shutil.rmtree('./Plots')
   except OSError as exc: pass
