@@ -43,7 +43,7 @@ class Plotter(object):
     # print "DoRatio : %s" %self.DoRatios
     # Apply options
     self.splash_screen()
-    self.jetcatdict = { "2":"Low","3":"High"}
+    self.jetcatdict = { "2":"Low","3":"High","5":"5"}
 
     """
     Hist getting simply loops through your specified data file and then appends to a list the path
@@ -89,12 +89,12 @@ class Plotter(object):
                   if self.jet_multi == "True":
                     base = subkey.GetName().strip('all')
                     # if "pfCands" not in base:
-                    for entry in ['all','2','3']:
+                    for entry in ['all','2','3','5'][:-1]:
                       self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
                       self.Hist_List.append(base+entry)
                     # else:
                     #   base = base.strip('0')
-                    #   for entry in ['0','2','3']:
+                    #   for entry in ['0','2','3','5']:
                     #     self.Path_List.append("%s/%s" % (subdirect.GetName(),base+entry))
                     #     self.Hist_List.append(base+entry)                      
                   else: 
@@ -506,11 +506,18 @@ class Plotter(object):
         self.max_maker[0].GetYaxis().SetRangeUser(0.11,self.ymax)#self.iflog,self.ymax)
 
   def TextBox(self,plot,htbin,histname):
+    
+    jet_cat_string = histname.split("_")[-1]
+    string_dict = { "2":"=2,3",
+                    "3":">3",
+                    "5":"=assym",
+                    "all":"=all"}
+
     Textbox = r.TLatex()
     Textbox.SetNDC()
     Textbox.SetTextAlign(12)
     Textbox.SetTextSize(0.04)
-    Textbox.DrawLatex(0.1,0.95, htbin+'    Jet Multiplicity'+('>' if histname.split('_')[-1] == '3' else '=') +('2,3' if histname.split('_')[-1] == '2' else histname.split('_')[-1]))
+    Textbox.DrawLatex(0.1,0.95, htbin+'    Jet Multiplicity'+string_dict[jet_cat_string])
 
   def TagBox(self):
     Textbox = r.TLatex()
@@ -541,7 +548,7 @@ class Plotter(object):
       
       another_plot = File.Get(("%s%s/%s" %(histpath,bin,histname) if histpath !="" else "%s%s/%s" %(histpath,bin,histname) ) ) 
     
-      if self.jetcategory in ["2","3"]:
+      if self.jetcategory in ["2","3","5"]:
         another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
       else:
         another_plot.Scale(self.settings["Trigger"][bin.split('_')[0]+"_Low"])
@@ -615,7 +622,7 @@ class Plotter(object):
       self.jetcategory = histname.split('_')[-1]
 
 
-      if self.jetcategory in ["2","3"]:
+      if self.jetcategory in ["2","3","5"]:
         mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0]+"_"+self.jetcatdict[self.jetcategory]])
       else:
         mcplot.Scale(self.settings["Trigger"][htbin.split('_')[0] + "_Low"]) #FIXME: change to new system
@@ -704,7 +711,7 @@ class Plotter(object):
 
     out = []
 
-    for i in itertools.product(hist_names, ["2", "3", "all"]):
+    for i in itertools.product(hist_names, ["2", "3", "5", "all"]):
       out.append( i[0] + "_" + i[1] )
 
     return out
@@ -732,7 +739,7 @@ class Plotter(object):
             plot.Rebin(50)
             self.OverFlow_Bin(plot,0,2500,1600)
 
-        if histogram in ["ComMinBiasDPhi_all","ComMinBiasDPhi_2","ComMinBiasDPhi_3", "ComMinBiasDPhi_acceptedJets_all","ComMinBiasDPhi_acceptedJets_2","ComMinBiasDPhi_acceptedJets_3"]:
+        if histogram in ["ComMinBiasDPhi_all","ComMinBiasDPhi_2","ComMinBiasDPhi_5","ComMinBiasDPhi_3", "ComMinBiasDPhi_acceptedJets_all","ComMinBiasDPhi_acceptedJets_2","ComMinBiasDPhi_acceptedJets_3","ComMinBiasDPhi_acceptedJets_5"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -741,7 +748,7 @@ class Plotter(object):
             plot.Rebin(10)
             self.OverFlow_Bin(plot,0,3.15,3.15)
 
-        if histogram in ["MHT_all","MHT_2","MHT_3","MHT_FixedThreshold_all","MHT_FixedThreshold_2","MHT_FixedThreshold_3"]:
+        if histogram in ["MHT_all","MHT_2","MHT_3","MHT_5","MHT_FixedThreshold_all","MHT_FixedThreshold_5","MHT_FixedThreshold_2","MHT_FixedThreshold_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -760,7 +767,7 @@ class Plotter(object):
             plot.Rebin(10)
             # self.OverFlow_Bin(plot,0,2500,500)
        
-        if histogram in ["MET_all","MET_2","MET_3","MET_Corrected_all","MET_Corrected_2","MET_Corrected_3"]:
+        if histogram in ["MET_all","MET_2","MET_3","MET_5","MET_Corrected_all","MET_Corrected_2","MET_Corrected_3","MET_Corrected_5"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -846,7 +853,7 @@ class Plotter(object):
             if "Reversed" in self.settings["Misc"]: self.Reversed_Integrator(plot)
 
 
-        if histogram in ["HT_all","HT_2","HT_3"]:
+        if histogram in ["HT_all","HT_2","HT_3","HT_5"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
             plot.GetYaxis().SetTitleOffset(1.3)
@@ -1467,7 +1474,7 @@ class Webpage_Maker(object):
             htF.write('<a href=\"../RA1_Website_Plots.html\"> Go </a>')
             htF.write('<br><br>')
             
-            jet_array = ['2','3','all']
+            jet_array = ['2','3','5','all']
             btag_array = ['_','_btag_morethanzero_','_btag_morethanone_','_btag_morethantwo_','_btag_morethanthree_','_btag_zero_','_btag_one_','_btag_two_','_btag_three_']
             if "Had" in self.title: 
               for num,entry in enumerate(btag_array): btag_array[num] = (entry.rstrip('_'))
