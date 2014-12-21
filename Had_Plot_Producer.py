@@ -14,27 +14,27 @@ from run_details import this_run
 
 r.gROOT.SetBatch(r.kTRUE)
 
-trigger_effs = {"200_Low":0.818,"200_High":0.789,
-                 "275_Low":0.952,"275_High":0.900,
-                 "325_Low":0.978,"325_High":0.959,
-                 "375_Low":0.992,"375_High":0.987,
-                 "475_Low":0.998,"475_High":0.996, 
-                 "575_Low":1.,"575_High":1.,
-                 "675_Low":1.,"675_High":1.,
-                 "775_Low":1.,"775_High":1.,
-                 "875_Low":1.,"875_High":1.,
-                 "975_Low":1.,"975_High":1.,
-                 "1075_Low":1.,"1075_High":1.,}
+trigger_effs = {"200_Low":0.818,"200_High":0.789,"200_5":0.32,
+                "275_Low":0.952,"275_High":0.900,"275_5":0.39,
+                "325_Low":0.978,"325_High":0.959,"325_5":0.96,
+                "375_Low":0.992,"375_High":0.987,"375_5":0.97,
+                "475_Low":0.998,"475_High":0.996, "475_5":0.96,
+                "575_Low":1.,"575_High":1.,"575_5":1.,
+                "675_Low":1.,"675_High":1.,"675_5":1.,
+                "775_Low":1.,"775_High":1.,"775_5":1.,
+                "875_Low":1.,"875_High":1.,"875_5":1.,
+                "975_Low":1.,"975_High":1.,"975_5":1.,
+                "1075_Low":1.,"1075_High":1.,"1075_5":1.,}
 
 settings = {
-  "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"][:1],
+  "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
   # "Plots":["MHTovMET_all", "MET_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","Number_Good_verticies_all","LeadJetPt_all","SecondJetPt_all",][1:3],
-  "Plots":["ComMinBiasDPhi_acceptedJets_all", "ComMinBiasDPhi_all", "MET_all","MHT_all","LeadJetEta_all", "Number_Good_verticies_all"][1:],
+  "Plots":["ComMinBiasDPhi_acceptedJets_all", "ComMinBiasDPhi_all", "MET_all","MHT_all","LeadJetEta_all", "Number_Good_verticies_all"][:1],
   "Lumo" : this_run()["had_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Had",
   # "WebBinning":["200_275","275_325","325_375","375_475","375_upwards","200_upwards"][-2:-1],
-  "WebBinning":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075", "375_upwards", "200_upwards"][:1],
+  "WebBinning":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075", "375_upwards", "200_upwards"],
   "Misc":[],
   "MHTMET":"True",
   "Trigger":trigger_effs,
