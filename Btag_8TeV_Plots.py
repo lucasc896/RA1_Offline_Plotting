@@ -1353,6 +1353,7 @@ class Webpage_Maker(object):
           self.title = category
         self.binning = foldername
         self.Make_Page(plotnames,self.binning,option)
+        self.baseDir = "/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/"
 
       def ensure_dir(self,dir):
         try: os.makedirs(dir)
@@ -1363,16 +1364,16 @@ class Webpage_Maker(object):
         print "       ======== Making Webpage ========"
         print "       ********************************\n\n"
         self.webdir = self.title+"_plots_"+strftime("%d_%b_%H")
-        self.ensure_dir("/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/"+self.webdir)
+        self.ensure_dir(self.baseDir+self.webdir)
         for root,dirs,files in os.walk('./Plots'):
           for filename in fnmatch.filter(files,'*'):
               name = os.path.join(root,filename)
-              os.system('cp ' +name+ ' /Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/')
+              os.system('cp ' +name+ ' ' + self.baseDir + self.webdir+'/')
         
         if option == "Normal":
           for i in plotnames:
               counter = 0
-              htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/'+i+'.html','w')
+              htF = open(self.baseDir+self.webdir+'/'+i+'.html','w')
               htF.write('Author: Darren Burton<br> \n')
               htF.write('Analyst: Chris Lucas<br> \n')
               htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
@@ -1421,9 +1422,9 @@ class Webpage_Maker(object):
         for i in outer:
           for j in inner:
             counter = 0
-            if simplified:htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/Simplified_'+j+'_'+i+'.html','w')
-            elif stacked: htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/Stacked_'+j+'_'+i+'.html','w')
-            else: htF = open('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir+'/'+j+'_'+i+'.html','w')
+            if simplified:htF = open(self.baseDir+self.webdir+'/Simplified_'+j+'_'+i+'.html','w')
+            elif stacked: htF = open(self.baseDir+self.webdir+'/Stacked_'+j+'_'+i+'.html','w')
+            else: htF = open(self.baseDir+self.webdir+'/'+j+'_'+i+'.html','w')
             htF.write('Author: Darren Burton <br> \n')
             htF.write('Analyst: Chris Lucas <br> \n')
             htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
@@ -1481,7 +1482,7 @@ class Webpage_Maker(object):
               for num,entry in enumerate(self.btag_names): 
                 self.btag_names[entry] = self.btag_names[entry].rstrip('_')
                 if num == 0: self.btag_names[entry] = ""
-            for root,dirs,files in os.walk('/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/'+self.webdir):
+            for root,dirs,files in os.walk(self.baseDir+self.webdir):
               sorter = []
               test_sorter = []
               if not slice:
