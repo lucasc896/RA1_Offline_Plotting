@@ -1341,7 +1341,15 @@ class Webpage_Maker(object):
         
       """
 
-      def __init__(self,plotnames,foldername,category,option="",extra=""):
+      def __init__(self,plotnames,foldername,category,option="",extra="", bg_predict=False):
+        """
+        plotnames = variables to plot
+        foldername = names of folders corresponding to chosen binning (e.g. HT)
+        category = region [Had, OneMuon, DiMuon, Photon]
+        option = ??? use "btag"
+        extra = for OS dimuons???
+        bg_predict = True if you want to do BG predictions from data as well as MC
+        """
         self.extra = extra
         print category
         if "Had" in category:
@@ -1354,17 +1362,26 @@ class Webpage_Maker(object):
         self.binning = foldername
         self.Make_Page(plotnames,self.binning,option)
         self.baseDir = "/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/"
+        self.bg_predict = bg_predict
 
       def ensure_dir(self,dir):
         try: os.makedirs(dir)
         except OSError as exc: pass
       
       def Make_Page(self,plotnames,foldername,option=""): 
+        """
+        Make set of webpages (for both HT and btag evolution)
+
+        plotnames = variables to plot
+        foldername = foldernames corresponding to bins (eg HT)
+        option = "Normal" or "btag" ???
+        """
         print "\n       ================================" 
         print "       ======== Making Webpage ========"
         print "       ********************************\n\n"
         self.webdir = self.title+"_plots_"+strftime("%d_%b_%H")
         self.ensure_dir(self.baseDir+self.webdir)
+        # copy relevant files into new directory
         for root,dirs,files in os.walk('./Plots'):
           for filename in fnmatch.filter(files,'*'):
               name = os.path.join(root,filename)
@@ -1406,6 +1423,8 @@ class Webpage_Maker(object):
             self.btag_slices = {'Zero':"0-btag",'Two':"2-btag","Inclusive":"Inclusive",'More_Than_One':"More Than One"} # reduced number of btag cats
             self.btag_names = {'More_Than_Three':"_btag_morethanthree_"+self.category,'More_Than_Two':"_btag_morethantwo_"+self.category,'More_Than_Zero':"_btag_morethanzero_"+self.category,'More_Than_One':"_btag_morethanone_"+self.category,'Zero':"_btag_zero_"+self.category,'One':"_btag_one_"+self.category,'Three':"_btag_three_"+self.category,'Two':"_btag_two_"+self.category,"Inclusive":'_'+self.category }
 
+          # Make webpages for all variables, for diff ways of plotting BGs
+          # Do for HT bins, and for btag bins
           self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ")
           self.Alpha_Webpage(self.btag_slices,plotnames,link=foldername[0],outertitle="Btag Multiplicities:  ",slice="True")
           
@@ -1417,25 +1436,49 @@ class Webpage_Maker(object):
           self.Alpha_Webpage(foldername,plotnames,link="Zero",outertitle="HT Bins:  ",stacked = "True")
           self.Alpha_Webpage(self.btag_slices,plotnames,link=foldername[0],outertitle="Btag Multiplicities:  ",slice="True",stacked = "True")
 
-      def Alpha_Webpage(self,outer,inner,link="",outertitle="",slice="",simplified="",stacked=""):
- 
+          # BG from data predictions
+          if self.bg_predict:
+            self.Alpha_Webpage(foldername, plotnames, link="Zero", outertitle="HT Bins:  ",do_predict=True)
+            self.Alpha_Webpage(self.btag_slices, plotnames, link=foldername[0], outertitle="Btag Multiplicities:  ",slice="True",do_predict=True)
+
+
+      def Alpha_Webpage(self,outer,inner,link="",outertitle="",slice="",simplified="",stacked="",do_predict=False):
+        """
+        This makes a single webpage, with links to other bins/vars/etc, and all the relevant plots.
+
+        outer = one list of things to go through (e.g HT bins)
+        inner = another list of things to go through, for each bin in outer (e.g variables)
+        link = default appendix for link when changing evolution type (e.g. "Zero" when switching to btag evolution)
+        outertitle = human-readable name for whatever list is in outer (e.g. "HT bins")
+        slice = "True" if using btag_slices, "" otherwise.
+        simplified/stacked = bools as strings. As in, "" = False, anything else = True
+            Oh but be careful, beacuse somewhere it tests for simplified == "True"
+            Not my fault. Blame Darren. And I believe you can have both == "True"?
+            Although in that case, it effectively ignores your 'stacked' arg.
+        do_predict = whether this webpage is for BG from data predictions (True) or from MC (False) [bools, not strings]
+        """
         for i in outer:
           for j in inner:
             counter = 0
-            if simplified:htF = open(self.baseDir+self.webdir+'/Simplified_'+j+'_'+i+'.html','w')
+            # Setup webpage HTML filepath
+            if do_predict: htF = open(self.baseDir+self.webdir+'/Prediction_'+j+'_'+i+'.html','w')
+            elif simplified:htF = open(self.baseDir+self.webdir+'/Simplified_'+j+'_'+i+'.html','w')
             elif stacked: htF = open(self.baseDir+self.webdir+'/Stacked_'+j+'_'+i+'.html','w')
             else: htF = open(self.baseDir+self.webdir+'/'+j+'_'+i+'.html','w')
+            # Header info
             htF.write('Author: Darren Burton <br> \n')
             htF.write('Analyst: Chris Lucas <br> \n')
             htF.write('<script language="Javascript"> \n document.write("Last Modified: " + document.lastModified + ""); \n </script> <br> \n ')
             htF.write('<center>\n <p> \n <font size="5"> '+self.title+' Plots </font>\n </p>\n') 
             htF.write('<font size="3">Results for '+j+'_'+i+' </font><br> \n')
+            # Add links to other items in inner (typically other variables)
             htF.write('Hist Name: ')
             for k in inner:
               counter += 1
-              if simplified: htF.write('<a href=\"Simplified_'+k+'_'+i+'.html\">'+k+'</a>   ')
+              if do_predict: htF.write('<a href=\"Prediction_'+k+'_'+i+'.html\">'+k+'</a>   ')
+              elif simplified: htF.write('<a href=\"Simplified_'+k+'_'+i+'.html\">'+k+'</a>   ')
               elif stacked: htF.write('<a href=\"Stacked_'+k+'_'+i+'.html\">'+k+'</a>   ')
-              else: 
+              else:
                 htF.write('<a href=\"'+k+'_'+i+'.html\">'+k+'</a>   ')
               htF.write('    |     ')
               if counter == 4:
@@ -1443,38 +1486,53 @@ class Webpage_Maker(object):
                 counter = 0
             htF.write('<br> \n')
             htF.write('<br> \n')
+            # Add links for other items in outer list (HT bins or btag bins)
             htF.write(outertitle)
             for k in outer: 
-              if simplified:htF.write('<a href=\"Simplified_'+j+'_'+k+'.html\">'+(self.btag_slices[k] if slice else k)+'</a>     /    ')
+              if do_predict: htF.write('<a href=\"Prediction_'+j+'_'+k+'.html\">'+(self.btag_slices[k] if slice else k)+'</a>     /    ')
+              elif simplified:htF.write('<a href=\"Simplified_'+j+'_'+k+'.html\">'+(self.btag_slices[k] if slice else k)+'</a>     /    ')
               elif stacked:htF.write('<a href=\"Stacked_'+j+'_'+k+'.html\">'+(self.btag_slices[k] if slice else k)+'</a>     /    ')
               else:htF.write('<a href=\"'+j+'_'+k+'.html\">'+(self.btag_slices[k] if slice else k)+'</a>     /    ')
             htF.write('<br> \n')
             htF.write('<br> \n')
-            if simplified:htF.write('Change Evolution Type: <a href=\"Simplified_'+j+'_'+link+'.html\">'+ ('HT Evolution' if slice else 'Btag Evolution')+'</a>')
+            # Add switch for evolutions type (HT bins <-> btag bins normally)
+            if do_predict: htF.write('Change Evolution Type: <a href=\"Prediction_'+j+'_'+link+'.html\">'+ ('HT Evolution' if slice else 'Btag Evolution')+'</a>')
+            elif simplified:htF.write('Change Evolution Type: <a href=\"Simplified_'+j+'_'+link+'.html\">'+ ('HT Evolution' if slice else 'Btag Evolution')+'</a>')
             elif stacked:htF.write('Change Evolution Type: <a href=\"Stacked_'+j+'_'+link+'.html\">'+ ('HT Evolution' if slice else 'Btag Evolution')+'</a>')
             else:htF.write('Change Evolution Type: <a href=\"'+j+'_'+link+'.html\">'+ ('HT Evolution' if slice else 'Btag Evolution')+'</a>')
             htF.write('<br> \n')
             htF.write('<br> \n')
-            htF.write(' Toggle Full/Basic/Stacked Plots:')
-            if simplified:
-              htF.write('<a href=\"'+j+'_'+i+'.html\">' + '  Full </a>')
-              htF.write('     |     ')
-              htF.write('<a href=\"Stacked_'+j+'_'+i+'.html\">' + '   Stacked </a>')
-            elif stacked:
-              htF.write('<a href=\"'+j+'_'+i+'.html\">' + '   Full </a>')
-              htF.write('     |     ')
-              htF.write('<a href=\"Simplified_'+j+'_'+i+'.html\">' + '   Simplified </a>')
-            else:
-              htF.write('<a href=\"Stacked_'+j+'_'+i+'.html\">' + '   Stacked </a>')
-              htF.write('     |     ')
-              htF.write('<a href=\"Simplified_'+j+'_'+i+'.html\">' + '   Simplified </a>')
-            
-            htF.write('<br> \n')
-            htF.write('<br> \n')
+            # Switch for BG plotting: Full/Simplified/Stack (only for MC atm)
+            if not do_predict:
+              htF.write(' Toggle Full/Basic/Stacked Plots:')
+              if simplified:
+                htF.write('<a href=\"'+j+'_'+i+'.html\">' + '  Full </a>')
+                htF.write('     |     ')
+                htF.write('<a href=\"Stacked_'+j+'_'+i+'.html\">' + '   Stacked </a>')
+              elif stacked:
+                htF.write('<a href=\"'+j+'_'+i+'.html\">' + '   Full </a>')
+                htF.write('     |     ')
+                htF.write('<a href=\"Simplified_'+j+'_'+i+'.html\">' + '   Simplified </a>')
+              else:
+                htF.write('<a href=\"Stacked_'+j+'_'+i+'.html\">' + '   Stacked </a>')
+                htF.write('     |     ')
+                htF.write('<a href=\"Simplified_'+j+'_'+i+'.html\">' + '   Simplified </a>')
+              htF.write('<br> \n')
+              htF.write('<br> \n')
+            # Add switch for background source: MC or data prediction
+            if self.bg_predict:
+                htF.write('Toggle background source:')
+                fname = j+'_'+i+".html" if do_predict else "Prediction_"+j+'_'+i+".html"
+                bg_other = "MC" if do_predict else "Prediction from data"
+                htF.write('<a href=\"%s\">    %s </a>' % (fname, bg_other))
+                htF.write('<br> \n')
+                htF.write('<br> \n')
+            # Home james
             htF.write(' Return to Home Page:')
             htF.write('<a href=\"../RA1_Website_Plots.html\"> Go </a>')
             htF.write('<br><br>')
             
+            # Now actually add the plots themselves
             jet_array = ['2','3','5','all']
             btag_array = ['_','_btag_morethanzero_','_btag_morethanone_','_btag_morethantwo_','_btag_morethanthree_','_btag_zero_','_btag_one_','_btag_two_','_btag_three_']
             if "Had" in self.title: 
@@ -1488,23 +1546,31 @@ class Webpage_Maker(object):
               if not slice:
                 for multi in btag_array:
                   for label in jet_array:
-                    if not stacked:
-                      for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+multi+self.category+'_'+i+'*.png' if simplified == "True" else j.strip('all')+label+multi+self.category+'_'+i+'*.png')):
-                        sorter.append(filenames)
+                    if do_predict:
+                      pname = "Prediction_"+j.strip('all')+label+multi+self.category+'_'+i+'*.png'
+                      [sort.append(filenames) for filenames in fnmatch.filter(files,pname)]
                     else:
-                      for filenames in fnmatch.filter(files,'Stacked_'+j.strip('all')+label+multi+self.category+'_'+i+'*.png'):
-                        sorter.append(filenames)
+                      if not stacked:
+                        for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+multi+self.category+'_'+i+'*.png' if simplified == "True" else j.strip('all')+label+multi+self.category+'_'+i+'*.png')):
+                          sorter.append(filenames)
+                      else:
+                        for filenames in fnmatch.filter(files,'Stacked_'+j.strip('all')+label+multi+self.category+'_'+i+'*.png'):
+                          sorter.append(filenames)
               else:
                 for bin in self.binning:
                   for label in jet_array:
-                    if not stacked:
-                      # print j,label
-                      # print j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' 
-                      for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' if simplified == "True" else j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png')):
-                        sorter.append(filenames)
+                    if do_predict:
+                      pname = "Prediction_"+j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png'
+                      [sort.append(filenames) for filenames in fnmatch.filter(files,pname)]
                     else:
-                      for filenames in fnmatch.filter(files,'Stacked_'+j.strip('all')+label+self.btag_names[i]+'_'+bin+'.png'):
-                        sorter.append(filenames)
+                      if not stacked:
+                        # print j,label
+                        # print j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png'
+                        for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png' if simplified == "True" else j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png')):
+                          sorter.append(filenames)
+                      else:
+                        for filenames in fnmatch.filter(files,'Stacked_'+j.strip('all')+label+self.btag_names[i]+'_'+bin+'.png'):
+                          sorter.append(filenames)
               for plot in sorter: htF.write('<a href='+plot+'><img width=\"30%\" src=\"'+plot+'\"></a> \n') 
 
 
