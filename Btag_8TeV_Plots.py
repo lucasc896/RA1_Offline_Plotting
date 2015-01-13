@@ -1126,6 +1126,16 @@ class Plotter(object):
             plot.Rebin(10)
             self.OverFlow_Bin(plot,0,3.15,3.15)
 
+        if histogram in ["MinBiasJetLeadJetDPhi_all","MinBiasJetLeadJetDPhi_1","MinBiasJetLeadJetDPhi_2","MinBiasJetLeadJetDPhi_3","MinBiasJetLeadJetDPhi_4"]:
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word:
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events")
+          if not norebin:
+            plot.Rebin(5)
+            self.OverFlow_Bin(plot,0,3.15,3.15)
+
+
         if "PhotonPt_" in histogram:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if word: 
