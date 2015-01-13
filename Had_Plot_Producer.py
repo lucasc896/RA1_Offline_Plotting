@@ -35,7 +35,7 @@ for jetcat in range(4):
 settings = {
   "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
   # "Plots":["MHTovMET_all", "MET_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","Number_Good_verticies_all"][4:5],
-  "Plots":["MET_all", "MHT_all", "ComMinBiasDPhi_acceptedJets_all"],
+  "Plots":["MET_all", "MHT_all", "ComMinBiasDPhi_acceptedJets_all", "MinBiasJetIsB_all", "MinBiasJetLeadJetDPhi_all"][-1:],
   "Lumo" : this_run()["had_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Had",
