@@ -1360,9 +1360,10 @@ class Webpage_Maker(object):
           if self.extra: self.category = category.rstrip(self.extra)
           self.title = category
         self.binning = foldername
-        self.Make_Page(plotnames,self.binning,option)
-        self.baseDir = "/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/"
         self.bg_predict = bg_predict
+        # self.baseDir = "/Users/robina/Dropbox/AlphaT/RA1_Offline_Plotting/11Dec_aT_0p53_forRobin_v0_new/"
+        self.baseDir = "/Users/chrislucas/SUSY/AnalysisCode/Website_Plots/"
+        self.Make_Page(plotnames,self.binning,option)
 
       def ensure_dir(self,dir):
         try: os.makedirs(dir)
@@ -1548,7 +1549,7 @@ class Webpage_Maker(object):
                   for label in jet_array:
                     if do_predict:
                       pname = "Prediction_"+j.strip('all')+label+multi+self.category+'_'+i+'*.png'
-                      [sort.append(filenames) for filenames in fnmatch.filter(files,pname)]
+                      [sorter.append(filenames) for filenames in fnmatch.filter(files,pname)]
                     else:
                       if not stacked:
                         for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+multi+self.category+'_'+i+'*.png' if simplified == "True" else j.strip('all')+label+multi+self.category+'_'+i+'*.png')):
@@ -1561,7 +1562,7 @@ class Webpage_Maker(object):
                   for label in jet_array:
                     if do_predict:
                       pname = "Prediction_"+j.strip('all')+label+self.btag_names[i]+'_'+bin+'*.png'
-                      [sort.append(filenames) for filenames in fnmatch.filter(files,pname)]
+                      [sorter.append(filenames) for filenames in fnmatch.filter(files,pname)]
                     else:
                       if not stacked:
                         # print j,label
