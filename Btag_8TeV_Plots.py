@@ -1548,8 +1548,8 @@ class Webpage_Maker(object):
                 for multi in btag_array:
                   for label in jet_array:
                     if do_predict:
-                      pname = "Prediction_"+j.strip('all')+label+multi+self.category+'_'+i+'*.png'
-                      [sorter.append(filenames) for filenames in fnmatch.filter(files,pname)]
+                      pname = "Stacked_"+j.strip('all')+label+multi+self.category+'_'+i+'*.png'
+                      [sorter.append(filenames.replace("Stacked", "Prediction")) for filenames in fnmatch.filter(files,pname)]
                     else:
                       if not stacked:
                         for filenames in fnmatch.filter(files,('Simplified_'+j.strip('all')+label+multi+self.category+'_'+i+'*.png' if simplified == "True" else j.strip('all')+label+multi+self.category+'_'+i+'*.png')):
