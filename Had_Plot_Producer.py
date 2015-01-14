@@ -27,9 +27,10 @@ trigger_effs = {"200_Low":0.818,"200_High":0.789,"200_5":0.32,
                 "1075_Low":1.,"1075_High":1.,"1075_5":1.,}
 
 settings = {
-  "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
+  "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"][:3],
   # "Plots":["MHTovMET_all", "MET_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","Number_Good_verticies_all","LeadJetPt_all","SecondJetPt_all",][1:3],
   "Plots":["ComMinBiasDPhi_acceptedJets_all", "ComMinBiasDPhi_all", "MET_all","MHT_all","LeadJetEta_all", "Number_Good_verticies_all"][:1],
+  # "Plots":["HT_all",],
   "Lumo" : this_run()["had_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Had",
@@ -137,7 +138,7 @@ if __name__=="__main__":
   c = Plotter(settings,muon_two_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   d = Plotter(settings,muon_zero_btag_plots,jet_multiplicity = "True",make_ratio= "True")
   e = Plotter(settings,muon_one_btag_plots,jet_multiplicity = "True",make_ratio= "True")
-  finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"])
+  finish = Webpage_Maker(settings["Plots"],settings["WebBinning"],settings["Category"],option=settings["Webpage"], bg_predict=True)
 
   try :shutil.rmtree('./Plots')
   except OSError as exc: pass
