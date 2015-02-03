@@ -31,11 +31,10 @@ for jetcat in range(4):
   trigger_effs["475_"+str(jetcat)] = 1.
 
 
-
 settings = {
   "dirs":["200_275","275_325","325_375","375_475","475_575","575_675","675_775","775_875","875_975","975_1075","1075"],
-  # "Plots":["MHTovMET_all", "MET_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","Number_Good_verticies_all"][4:5],
-  "Plots":["MET_all", "MHT_all", "ComMinBiasDPhi_acceptedJets_all", "MinBiasJetIsB_all", "MinBiasJetLeadJetDPhi_all"][-1:],
+  "Plots":["MHTovMET_all", "MET_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","CommonJetPt_all","CommonJetEta_all","Number_Good_verticies_all"][:1],
+  # "Plots":["ComMinBiasDPhi_acceptedJets_all", "Thrust_pjetDphi_all", "MHTovMET_all", "MET_all","MHT_all","AlphaT_all","JetMultiplicity_all","HT_all","Number_Btags_all","CommonJetPt_all"][:2],
   "Lumo" : this_run()["had_lumi"]*10.,
   "Webpage":"btag",
   "Category":"Had",
@@ -65,8 +64,9 @@ muon_plots = {
      "mc4":("./"+rootpath+"/Had_Zinv.root","","Zinv","","Inclusive"),
      "mc5":("./"+rootpath+"/Had_DY"+njet_ext+".root","","DY","","Inclusive"),
      "mc7":("./"+rootpath+"/Had_DiBoson.root","","Di-Boson","","Inclusive"),
-     #"mc8":("./"+rootpath+"/Had_QCD.root","","QCD","","Inclusive"), 
+     # "mc8":("./"+rootpath+"/Had_QCD.root","","QCD","","Inclusive"), 
      "mc9":("./"+rootpath+"/Had_SingleTop.root","","Single_Top","","Inclusive"),
+     # "mcb10":("./"+rootpath+"/Had_SMS.root","","SMS","","Inclusive"),
     }
 
 muon_one_btag_plots = {
@@ -77,7 +77,8 @@ muon_one_btag_plots = {
      "mcb5":("./"+rootpath+"/Had_DY"+njet_ext+".root","btag_one_","DY","","One"),
      "mcb6":("./"+rootpath+"/Had_SingleTop.root","btag_one_","Single_Top","","One"),
      "mcb7":("./"+rootpath+"/Had_DiBoson.root","btag_one_","Di-Boson","","One"),
-    # "mcb8":("./"+rootpath+"/Had_QCD.root","btag_one_","QCD","","One"),       
+    # "mcb8":("./"+rootpath+"/Had_QCD.root","btag_one_","QCD","","One"),
+    # "mcb10":("./"+rootpath+"/Had_SMS.root","btag_one_","SMS","","One"),     
     }
 
 
@@ -89,7 +90,8 @@ muon_two_btag_plots = {
      "mcb5":("./"+rootpath+"/Had_DY"+njet_ext+".root","btag_two_","DY","","Two"),
      "mcb6":("./"+rootpath+"/Had_SingleTop.root","btag_two_","Single_Top","","Two"),
      "mcb7":("./"+rootpath+"/Had_DiBoson.root","btag_two_","Di-Boson","","Two"), 
-     #"mcb8":("./"+rootpath+"/Had_QCD.root","btag_two_","QCD","","Two"),   
+     # "mcb8":("./"+rootpath+"/Had_QCD.root","btag_two_","QCD","","Two"),   
+     # "mcb10":("./"+rootpath+"/Had_SMS.root","btag_two_","SMS","","Two"),
     }
 
 
@@ -101,7 +103,8 @@ muon_zero_btag_plots = {
      "mcb5":("./"+rootpath+"/Had_DY"+njet_ext+".root","btag_zero_","DY","","Zero"),
      "mcb6":("./"+rootpath+"/Had_SingleTop.root","btag_zero_","Single_Top","","Zero"),
      "mcb7":("./"+rootpath+"/Had_DiBoson.root","btag_zero_","Di-Boson","","Zero"),
-     #"mcb8":("./"+rootpath+"/Had_QCD.root","btag_zero_","QCD","","Zero"),     
+     # "mcb8":("./"+rootpath+"/Had_QCD.root","btag_zero_","QCD","","Zero"),     
+     # "mcb10":("./"+rootpath+"/Had_SMS.root","btag_zero_","SMS","","Zero"),
     }
 
 
@@ -112,8 +115,9 @@ muon_morethanzero_btag_plots = {
      "mcb4":("./"+rootpath+"/Had_Zinv.root","btag_morethanzero_","Zinv","","Zero"),
      "mcb5":("./"+rootpath+"/Had_DY"+njet_ext+".root","btag_morethanzero_","DY","","Zero"),
      "mcb7":("./"+rootpath+"/Had_DiBoson.root","btag_morethanzero_","Di-Boson","","Zero"),
-     #"mcb8":("./"+rootpath+"/Had_QCD.root","btag_morethanzero_","QCD","","Zero"), 
+     # "mcb8":("./"+rootpath+"/Had_QCD.root","btag_morethanzero_","QCD","","Zero"), 
      "mcb9":("./"+rootpath+"/Had_SingleTop.root","btag_morethanzero_","Single_Top","","Zero"),
+     # "mcb10":("./"+rootpath+"/Had_SMS.root","btag_morethanzero_","SMS","","Zero"),
     }
 
 if __name__=="__main__":
