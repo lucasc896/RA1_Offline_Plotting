@@ -276,7 +276,7 @@ class Plotter(object):
       if type(plot) != type(r.TH2D()) and "Profile" not in self.settings["Misc"]:
         self.Stack_Draw(plot,self.total_mc_maker,htbin,histname,rootpath,combine = combine)
         if "Normalise" in self.settings["Misc"]: self.Normalise_Plots(plot,self.ewk_mc_maker,self.qcd_only,htbin,histname,rootpath,combine = combine)
-        else: self.Simple_Draw(plot,self.ewk_background,self.qcd_only,self.total_background,htbin,histname,rootpath,combine = combine)
+        # else: self.Simple_Draw(plot,self.ewk_background,self.qcd_only,self.total_background,htbin,histname,rootpath,combine = combine)
 
       for file in self.Plot_Closer: file.Close()
 
@@ -625,7 +625,18 @@ class Plotter(object):
         self.Plot_Combiner(mcplot,self.settings["dirs"][self.dir_num:],histpath,histname,File,leg_entry,add_jet_mult = ("True" if histname.split('_')[-1] == '3' else "False"))
 
       mcplot.GetSumw2()
-      mcplot.Scale(float(self.settings["Lumo"]))
+
+      if "SMS" not in leg_entry:
+        mcplot.Scale(float(self.settings["Lumo"]))
+      else:
+        ##@@ need to account for the factor of 10 in self.settings["Lumo"]!!
+        # mcplot.Scale(float(self.settings["Lumo"])*0.00028) # scale factor for 128059 evts of 400GeV stop production (xs = 0.0356pb)
+        # mcplot.Scale(float(self.settings["Lumo"])*0.000957) # (250,230), T2cc 582301 evts, xs = 5.57596
+        mcplot.Scale(float(self.settings["Lumo"])*0.002046) # (250,240), T2_4body 272495 evts, xs = 5.57596
+        # mcplot.Scale(float(self.settings["Lumo"])*0.000959) # (250,170), T2cc 581438 evts, xs = 5.57596
+        # mcplot.Scale(float(self.settings["Lumo"])*0.05256) # (225,125) T2bw 0p75, 18853 evts, xs = 9.90959
+        mcplot.SetLineStyle(2)
+
       mcplot.SetLineColor(int(color))
       self.leg.AddEntry(mcplot,str(leg_entry),"L")
       mcplot.SetLineWidth(3)
@@ -1135,6 +1146,32 @@ class Plotter(object):
             plot.Rebin(5)
             self.OverFlow_Bin(plot,0,3.15,3.15)
 
+        if histogram in self.make_plot_name_list(["Thrust_pjetDphi"]):
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word:
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events")
+          if not norebin:
+            plot.Rebin(5)
+            self.OverFlow_Bin(plot,0,3.15,3.15)
+
+        if histogram in self.make_plot_name_list(["Thrust_HTFmax", "Thrust_HTFmin"]):
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word:
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events")
+          if not norebin:
+            plot.Rebin(2)
+            self.OverFlow_Bin(plot,0,1000., 1000.)
+
+        if histogram in self.make_plot_name_list(["Thrust_MHTFmax", "Thrust_MHTFmin"]):
+          if canvas: self.Log_Setter(plot,canvas,0.5)
+          if word:
+            plot.GetYaxis().SetTitleOffset(1.3)
+            plot.GetYaxis().SetTitle("Events")
+          if not norebin:
+            plot.Rebin(2)
+            self.OverFlow_Bin(plot,0,1000., 1000.)
 
         if "PhotonPt_" in histogram:
           if canvas: self.Log_Setter(plot,canvas,0.5)
