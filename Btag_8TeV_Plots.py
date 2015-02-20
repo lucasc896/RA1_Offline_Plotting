@@ -167,7 +167,7 @@ class Plotter(object):
           self.ratio.Divide(mc)
           # print histname, self.jetcategory, self.sample_list[self.sample_list.keys()[0]][-1]
           # self.ratio.GetYaxis().SetRangeUser(0.5,1.5)
-          self.ratio.GetYaxis().SetRangeUser(-1.,3.)
+          self.ratio.GetYaxis().SetRangeUser(0.,2.)
           self.ratio.GetYaxis().SetTitle("Data/MC")
           self.ratio.GetYaxis().SetTitleOffset(0.5)
           self.ratio.GetYaxis().SetLabelSize(0.11)
@@ -201,7 +201,7 @@ class Plotter(object):
           self.ratio.Draw("p")
           self.ratio_error.Draw("SAME2")
           #self.bv.Draw("SAME")
-          self.lv.Draw("SAME")
+          # self.lv.Draw("SAME")
           self.ratio.Draw("PSAME")
 
          
@@ -699,7 +699,10 @@ class Plotter(object):
       self.Plot_Closer.append(File)
 
   def Legend_Maker(self): 
-      self.leg = r.TLegend(0.72,0.54,0.90,0.76) 
+      if "Photon" in self.settings["Category"]:
+        self.leg = r.TLegend(0.72,0.65,0.90,0.76)
+      else:
+        self.leg = r.TLegend(0.72,0.54,0.90,0.76)
       self.leg.SetTextSize(0.02)
       self.leg.SetShadowColor(0)
       self.leg.SetBorderSize(0)
@@ -792,7 +795,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 50 GeV")
           if not norebin:
-            plot.Rebin(50)
+            plot.Rebin(5)
             self.OverFlow_Bin(plot,0,2000,800)
 
 
@@ -802,7 +805,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 0.02")
           if not norebin:
-            plot.Rebin(10)
+            plot.Rebin(1)
             self.OverFlow_Bin(plot,0,2.,0.16)
 
         if "MuHIso_" in histogram:
@@ -838,7 +841,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 25 GeV")
           if not norebin:
-            plot.Rebin(20)
+            plot.Rebin(5)
           self.OverFlow_Bin(plot,10,2010,1000)
           plot.GetXaxis().SetRangeUser(0., 1000.)
 
@@ -859,7 +862,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 25 GeV")
           if not norebin:
-            plot.Rebin(25)  
+            plot.Rebin(5)  
             self.OverFlow_Bin(plot,0,2000,1500)
             if "Reversed" in self.settings["Misc"]: self.Reversed_Integrator(plot)
 
@@ -1144,8 +1147,9 @@ class Plotter(object):
   
         if histogram in self.make_plot_name_list(["LeadJetPt","SecondJetPt","CommonJetPt"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
+          plot.GetXaxis().SetTitle("Jet Pt (GeV)")
           if not norebin:
-            plot.Rebin(10)
+            plot.Rebin(4)
             self.OverFlow_Bin(plot,0.,1500.,500.)
 
         if histogram in self.make_plot_name_list(["LeadJetEta","SecondJetEta","CommonJetEta"]):
@@ -1157,7 +1161,7 @@ class Plotter(object):
         if histogram in ["MuEta_all","MuEta_2","MuEta_3", "SecondMuEta_all", "SecondMuEta_2", "SecondMuEta_3"]:
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
-            plot.Rebin(2)
+            plot.Rebin(1)
             plot.SetAxisRange(-3.0,3.0,"X")
 
         if "PhotonPt_" in histogram:
@@ -1166,7 +1170,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 25 GeV")
           if not norebin:
-            plot.Rebin(25)
+            plot.Rebin(2)
           self.OverFlow_Bin(plot,0,1500,650)
 
         if "Photonrho25_" in histogram:
@@ -1233,7 +1237,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 5 GeV")
           if not norebin:
-            plot.Rebin(5)
+            plot.Rebin(1)
           self.OverFlow_Bin(plot,0,1500,150)
 
         if "DiLepton_Mass_" in histogram:
