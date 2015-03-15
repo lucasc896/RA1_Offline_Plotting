@@ -729,7 +729,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitle("Events / 50 GeV")
           if not norebin:
             plot.Rebin(5)
-            self.OverFlow_Bin(plot,0,600,500)
+            self.OverFlow_Bin(plot,0,600,800)
        
         if histogram in self.make_plot_name_list(["MET", "MET_Corrected"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
@@ -738,7 +738,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitle("Events / 25 GeV")
           if not norebin:
             plot.Rebin(5)
-            self.OverFlow_Bin(plot,0,2500,500)
+            self.OverFlow_Bin(plot,0,2500,800)
 
         if histogram in self.make_plot_name_list(["MT"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
@@ -838,7 +838,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 25 GeV")
           if not norebin:
-            plot.Rebin(25)  
+            plot.Rebin(5)  
             self.OverFlow_Bin(plot,0,2000,1500)
             if "Reversed" in self.settings["Misc"]: self.Reversed_Integrator(plot)
 
@@ -1001,7 +1001,7 @@ class Plotter(object):
             plot.GetYaxis().SetTitleOffset(1.3)
             plot.GetYaxis().SetTitle("Events / 0.1")
           if not norebin:
-            plot.Rebin(25)
+            plot.Rebin(5)
             self.OverFlow_Bin(plot,0,10.,5.0)
 
         if "MHT_vs_MET" in histogram:
@@ -1112,13 +1112,13 @@ class Plotter(object):
         if histogram in self.make_plot_name_list(["LeadJetPt","SecondJetPt","CommonJetPt"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
-            plot.Rebin(10)
+            plot.Rebin(2)
             self.OverFlow_Bin(plot,0.,1500.,500.)
 
         if histogram in self.make_plot_name_list(["LeadJetEta","SecondJetEta","CommonJetEta"]):
           if canvas: self.Log_Setter(plot,canvas,0.5)
           if not norebin:
-            plot.Rebin(5)
+            plot.Rebin(2)
             plot.SetAxisRange(-3.0,3.0,"X")
 
         if histogram in self.make_plot_name_list(["MuEta"]):
