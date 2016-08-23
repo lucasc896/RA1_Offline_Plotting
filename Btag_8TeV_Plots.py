@@ -123,7 +123,6 @@ class Plotter(object):
   If this path is then within our Webbinning folder, eg. ones we want to show on the website we then pass this onto MakePlots
   """
   def Plotting_Option(self,settings,sample_list):
-        
         self.Directory_Maker() # make the outpute $PWD/Plots directory
         
         # print "\t=== Making Plots ==="
@@ -178,13 +177,15 @@ class Plotter(object):
           for i in range(0,self.ratio.GetNbinsX()):
               try:self.ratio.SetBinError(i+1,self.ratio.GetBinContent(i+1)*(data.GetBinError(i+1)/data.GetBinContent(i+1)))
               except ZeroDivisionError: self.ratio.SetBinError(i+1,0)
+
           self.ratio = self.Hist_Options(histname,self.ratio,norebin=True)
-          if self.max_min[1] != 0: 
-            self.lv = r.TLine(self.max_min[0],1,self.max_min[1],1)
-            fit = r.TF1("fit","pol0", self.max_min[0], self.max_min[1])
-          else:
-            fit = r.TF1("fit","pol0", data.GetXaxis().GetBinLowEdge(1), data.GetXaxis().GetBinUpEdge(data.GetNbinsX()))
-            self.lv = r.TLine(data.GetXaxis().GetBinLowEdge(1),1,data.GetXaxis().GetBinUpEdge(data.GetNbinsX()),1)
+          # TF1 seems to crash with this current setup - REMOVED BY HAND
+          # if self.max_min[1] != 0: 
+          #   self.lv = r.TLine(self.max_min[0],1,self.max_min[1],1)
+          #   fit = r.TF1("fit","pol0", self.max_min[0], self.max_min[1])
+          # else:
+          #   fit = r.TF1("fit","pol0", data.GetXaxis().GetBinLowEdge(1), data.GetXaxis().GetBinUpEdge(data.GetNbinsX()))
+          #   self.lv = r.TLine(data.GetXaxis().GetBinLowEdge(1),1,data.GetXaxis().GetBinUpEdge(data.GetNbinsX()),1)
           error_changer = self.ratio.Clone()
           for i in range(0,error_changer.GetNbinsX()):
             error_changer.SetBinContent(i,1)
@@ -192,12 +193,12 @@ class Plotter(object):
             except ZeroDivisionError: error_changer.SetBinError(i+1,0)
           r.gStyle.SetOptFit(1)
           self.ratio_error = r.TGraphErrors(error_changer)
-          self.ratio.Fit(fit,"Q")
+          # self.ratio.Fit(fit,"Q")
           self.ratio_error.SetFillStyle(3244)
           self.ratio_error.SetFillColor(17)
           #self.bv.SetFillColor(39)
           #self.bv.SetFillStyle(3002)
-          self.lv.SetLineWidth(3)
+          # self.lv.SetLineWidth(3)
           self.ratio.Draw("p")
           self.ratio_error.Draw("SAME2")
           #self.bv.Draw("SAME")
@@ -528,6 +529,8 @@ class Plotter(object):
     Textbox.SetTextSize(0.03)
     Textbox.DrawLatex(0.7,0.85,title )
     Textbox.DrawLatex(0.7,0.79,lumi)
+    # Textbox.DrawLatex(0.65,0.85,title )
+    # Textbox.DrawLatex(0.65,0.79,lumi)
 
 
   def Sideband_Corrections(self,plot,legend):
@@ -703,6 +706,7 @@ class Plotter(object):
         self.leg = r.TLegend(0.72,0.65,0.90,0.76)
       else:
         self.leg = r.TLegend(0.72,0.54,0.90,0.76)
+        # self.leg = r.TLegend(0.67,0.54,0.85,0.76)
       self.leg.SetTextSize(0.02)
       self.leg.SetShadowColor(0)
       self.leg.SetBorderSize(0)
